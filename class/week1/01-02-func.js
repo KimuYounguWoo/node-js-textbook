@@ -14,6 +14,3 @@ function checkOddOrEven2(num) {
     }
     else return mtest.odd;
 }
-
-console.log(checkOddOrEven(8));
-console.log(checkOddOrEven2(8));
