@@ -4,11 +4,13 @@ const db = require('./db');
 
 module.exports = {
     home : (req,res) => {
-        db.query('SELECT * FROM topic', (error,topics) => {
+        db.query('SELECT * FROM author', (error,authors) => {
             var c = '<a href="/create">create</a>'
             var b = '<h2>Welcome</h2><p>Node.js Start Page</p>'
             var context = {
-                list:topics, control:c, body:b
+                list:authors,
+                control:c,
+                body:b
             };
                 req.app.render('home', context, (err,html)=> {
                     res.end(html)
@@ -17,40 +19,39 @@ module.exports = {
         },
         page : (req,res) => {
             var id = req.params.pageId;
-            db.query('SELECT * FROM topic', (error,topics) => {
+            db.query('SELECT * FROM author', (error, authors) => {
                 if( error ) {
                     throw error;
                 }
-                db.query(`SELECT * FROM topic WHERE id = ${id}`
-                ,(error2, topic) => {
+                db.query(`SELECT * FROM author WHERE id = ${id}`
+                ,(error2, author) => {
                     if ( error2 ) {
                         throw error2;
                     }
-                var c = `<a href="/create">create</a>&nbsp;&nbsp;<a href="/update/${topic[0].id}">update</a>&nbsp;&nbsp; <a href="/delete/${topic[0].id}" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>delete</a>` 
-                var b = `<h2>${topic[0].title}</h2><p>${topic[0].descrpt}</p>`
+                var c = `<a href="/create">create</a>&nbsp;&nbsp;<a href="/update/${author[0].id}">update</a>&nbsp;&nbsp; <a href="/delete/${author[0].id}" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>delete</a>` 
+                var b = `<h2>${author[0].name}</h2><p>${author[0].profile}</p>`
                 var context = {
-                    list:topics,
+                    list:authors,
                     control:c,
                     body:b
                 };
-                res.app.render('home', context, (err,html)=> {
-                    res.end(html);
+                res.app.render('home', context, (err,html)=>{ res.end(html)
                 })
-        })
+            })
         });
-        },
+    },
     create : (req,res) => {
-        db.query(`SELECT * FROM topic`, (error,topics) => {
+        db.query(`SELECT * FROM author`, (error,authors) => {
             if( error ) {
                 throw error;
             }
             var context = {
-            list:topics,
+            list:authors,
             control: `<a href="/create">create</a>`,
             body :`
             <form action="/create_process" method="post">
-            <p><input type="text" name="title" placeholder="title"></p>
-            <p><textarea name="description" placeholder="description"></textarea></p>
+            <p><input type="text" name="name" placeholder="name"></p>
+            <p><textarea name="profile" placeholder="profile"></textarea></p>
             <p><input type="submit"></p></form>
             `};
             req.app.render('home',context, (err, html) => {
@@ -65,8 +66,8 @@ module.exports = {
         });
         req.on('end', () => {
             var post = qs.parse(body);
-            db.query(` INSERT INTO topic (title, descrpt, created) VALUES(?, ?, NOW())`,
-            [post.title, post.description],
+            db.query(`INSERT INTO author (name, profile) VALUES(?, ?)`,
+            [post.name, post.profile],
             (error, result) => {
                 if ( error ) {
                     throw error;
@@ -78,24 +79,24 @@ module.exports = {
     },
     update : function(req, res) {
         id = req.params.pageId;
-        db.query('SELECT * FROM topic', function(error, topics) {
+        db.query('SELECT * FROM author', function(error, authors) {
             if ( error ) {
                 throw error;
             }
-            db.query(`SELECT * FROM topic WHERE id=?`,
+            db.query(`SELECT * FROM author WHERE id=?`,
             [id],
-            function(error2, topic) {
+            function(error2, author) {
                 if( error2 ) {
                     throw error2;
                 }
                 var context = {
-                    list:topics,
-                    control: `<a href="/create">create</a> <a href="/update/${topic[0].id}">update</a>`,
+                    list:authors,
+                    control: `<a href="/create">create</a> <a href="/update/${author[0].id}">update</a>`,
                     body :`
                     <form action="/update_process" method="post">
-                    <input type="hidden" name="id" value="${topic[0].id}">
-                    <p><input type="text" name="title" placeholder="title" value="${topic[0].title}"></p>
-                    <p><textarea name="description" placeholder="description">${topic[0].descrpt}</textarea></p>
+                    <input type="hidden" name="id" value="${author[0].id}">
+                    <p><input type="text" name="name" placeholder="name" value="${author[0].name}"></p>
+                    <p><textarea name="profile" placeholder="profile">${author[0].profile}</textarea></p>
                     <p><input type="submit"></p> </form>` };
                     req.app.render('home',context, function(err, html) {
                         res.end(html);
@@ -110,8 +111,8 @@ module.exports = {
         });
         req.on('end', () => {
             var post = qs.parse(body);
-            db.query('UPDATE topic SET title=?, descrpt=? WHERE id=?',
-            [post.title, post.description, post.id],
+            db.query('UPDATE author SET name=?, profile=? WHERE id=?',
+            [post.name, post.profile, post.id],
             (error, result) => {
                 res.writeHead(302, {Location: `/page/${post.id}`});
                 res.end();
@@ -120,7 +121,7 @@ module.exports = {
     },
     delete_process : (req, res) => {
         id = req.params.pageId;
-        db.query('DELETE FROM topic WHERE id = ?',
+        db.query('DELETE FROM author WHERE id = ?',
         [id],
         (error, result) => {
             if( error ) {
