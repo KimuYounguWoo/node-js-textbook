@@ -12,8 +12,7 @@ app.set('view engine', 'ejs');
 
 var topic = require('./lib/topic');
 var author = require('./lib/author');
-var db = require('./lib/db');
-const customer = require('./lib/customer');
+var customer = require('./lib/customer');
 
 // Topic Page
 // app.get('/', (req, res) => {
