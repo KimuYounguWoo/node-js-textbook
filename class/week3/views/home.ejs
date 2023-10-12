@@ -6,14 +6,15 @@
         <link rel="icon" href="data:,">
     </head>
     <body>
-        <h1>Author Page</h1>
+        <h1><%= title%></h1>
+        <a href = "/author"> 저자 관리</a>
         <h1><a href="/">Home</a></h1> <ol type="1">
         <% var i = 0
         while(i < list.length)
         { %>
             <li><a href="/page/<%=list[i].id%>">
-                <%=list[i].name%> <!-- Author, Customer -->
-                <!-- Topic %=list[i].title%> Topic -->
+                <%=list[i].title%> <!-- Author, Customer -->
+                <!-- Topic %=list[i].name%> Topic -->
             </a></li>
             <% i += 1 } %>
         </ol>
