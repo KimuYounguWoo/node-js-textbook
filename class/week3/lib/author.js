@@ -122,12 +122,30 @@ module.exports = {
         });
     },
     delete_process : (req, res) => {
-        id = req.params.id;
-        db.query('DELETE FROM author WHERE id = ?',
-        [id],
-        (error, result) => {
+        id = req.params.id; // Author id
+        a = "삭제 가능";
+        b = "삭제 불가능";
+        db.query(`SELECT * FROM topic WHERE author_id = ${id}`, (error, topic) => { // topic이 없으면
+            if ( error ) {
+                throw error;
+            }
+            if ( topic.length === 0 ) {
+                db.query('DELETE FROM author WHERE id = ?',
+                [id],
+                (error, result) => {
+                if( error ) {
+                    throw error;
+                }
+                res.writeHead(302, {Location: `/author`});
+                res.end();
+            });
+            }
+            else {
+                res.send(`<script>alert("삭제 불가능")</script>`)
+                res.redirect(`/author`)
+            }
             res.writeHead(302, {Location: `/author`});
             res.end();
-        });
+            });
     },
 }

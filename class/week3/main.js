@@ -10,13 +10,18 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 // ejs setting
 
+var cookie = require('cookie');
+
 var topic = require('./lib/topic');
 var author = require('./lib/author');
 
 // ====================== Topic Page ======================
-app.get('/', (req, res) => {
-    topic.home(req, res);
-})
+// app.get('/', (req, res) => {
+//     topic.home(req, res);
+// })
+
+app.get('/', )
+
 
 app.get('/page/:pageId', (req, res) => {
     topic.page(req, res);
