@@ -1,10 +1,39 @@
 // 201935231 컴퓨터공학과 김용우
 var qs = require('querystring');
+// querystring module
+
 const db = require('./db');
+// db module
+
 var sanitizeHtml = require('sanitize-html');
+// sanitize-html module
+
+var cookie = require('cookie');
+// cookie module
+
+
+function authIsOwner(req) {
+    var isOwner = false;
+    var cookies = {};
+    if ( req.headers.cookie ) {
+        cookies = cookie.parse(req.headers.cookie);
+    }
+    if ( cookies.email === 'admin' && cookies.password === 'admin' ) {
+        isOwner = true;
+    }
+    return isOwner;
+} // Check cookie -> this user is alright?
+
+function authStatusUI(req) {
+    var login = '<a href = "/login">login</a>';
+    if (authIsOwner(req)) {
+        login = '<a href="/logout_process">logout</a>'
+    } return login;
+} // login context change
 
 module.exports = {
     home : (req,res) => {
+        var login = authStatusUI(req);
         db.query('SELECT * FROM topic', (error, topics) => {
             db.query('SELECT * FROM author', (err, authors) => {
                 var i = 0;
@@ -29,6 +58,7 @@ module.exports = {
                 </form>
                 `
                 var context = {
+                    lg: login,
                     title: 'Author list',
                     list: topics,
                     control: tag,
@@ -49,19 +79,29 @@ module.exports = {
             var post = qs.parse(body);
             sName = sanitizeHtml(post.name)
             sProfile = sanitizeHtml(post.profile)
-            db.query(
-                `INSERT INTO author (name, profile) VALUES(?, ?)`, 
-                [sName, sProfile],
-                (error, result) => {
-                    if (error) {
-                        throw error;
-                    }
-                    res.redirect(`/author`)
-                    res.end();
-            });
+            if ( !authIsOwner(req) ) {
+                res.write(`
+                <script type="text/javascript">
+                alert("ERROR :: Create is need to login");
+                location.href = "/";
+                </script>`);
+            }
+            else {
+                db.query(
+                    `INSERT INTO author (name, profile) VALUES(?, ?)`,
+                    [sName, sProfile],
+                    (error, result) => {
+                        if (error) {
+                            throw error;
+                        }
+                        res.redirect(`/author`)
+                        res.end();
+                });
+            }
         });
     },
     update : (req,res) => {
+        var login = authStatusUI(req);
         id = req.params.id;
         db.query('SELECT * FROM topic', (error, topics) => {
             db.query('SELECT * FROM author', (err, authors) => {
@@ -91,6 +131,7 @@ module.exports = {
                 </form>
                 `
                 var context = {
+                    lg: login,
                     title: 'Author list - Update',
                     list: topics,
                     control: tag,
@@ -112,40 +153,58 @@ module.exports = {
             var post = qs.parse(body);
             sName = sanitizeHtml(post.name)
             sProfile = sanitizeHtml(post.profile)
-            db.query(
-                `UPDATE author SET name = ?, profile = ? WHERE id = ?`,
-                [sName, sProfile, post.id],
-                (error, result) => {
-                    res.redirect(`/author`)
-                    res.end();
-            });
+            if ( !authIsOwner(req) ) {
+                res.write(`
+                <script type="text/javascript">
+                alert("ERROR :: Update is need to login");
+                location.href = "/";
+                </script>`);
+            }
+            else {
+                db.query(
+                    `UPDATE author SET name = ?, profile = ? WHERE id = ?`,
+                    [sName, sProfile, post.id],
+                    (error, result) => {
+                        res.redirect(`/author`)
+                        res.end();
+                });
+            }
         });
     },
     delete_process : (req, res) => {
         id = req.params.id; // Author id
         a = "삭제 가능";
         b = "삭제 불가능";
-        db.query(`SELECT * FROM topic WHERE author_id = ${id}`, (error, topic) => { // topic이 없으면
-            if ( error ) {
-                throw error;
-            }
-            if ( topic.length === 0 ) {
-                db.query('DELETE FROM author WHERE id = ?',
-                [id],
-                (error, result) => {
-                if( error ) {
+        if ( !authIsOwner(req) ) {
+            res.write(`
+            <script type="text/javascript">
+            alert("ERROR :: Delete is need to login");
+            location.href = "/";
+            </script>`);
+        }
+        else {
+            db.query(`SELECT * FROM topic WHERE author_id = ${id}`, (error, topic) => { // topic이 없으면
+                if ( error ) {
                     throw error;
+                }
+                if ( topic.length === 0 ) {
+                    db.query('DELETE FROM author WHERE id = ?',
+                    [id],
+                    (error, result) => {
+                    if( error ) {
+                        throw error;
+                    }
+                    res.writeHead(302, {Location: `/author`});
+                    res.end();
+                });
+                }
+                else {
+                    res.send(`<script>alert("삭제 불가능")</script>`)
+                    res.redirect(`/author`)
                 }
                 res.writeHead(302, {Location: `/author`});
                 res.end();
-            });
-            }
-            else {
-                res.send(`<script>alert("삭제 불가능")</script>`)
-                res.redirect(`/author`)
-            }
-            res.writeHead(302, {Location: `/author`});
-            res.end();
-            });
+                });
+        }
     },
 }

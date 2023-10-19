@@ -17,13 +17,7 @@ function univContext(id) {
     return createContext + `<a href="/update/${id}">update</a>&nbsp;&nbsp;<a href="/delete/${id}" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>delete</a>`;
 } // Context Merge
 
-function dataLoad(req) {
-    var body = '';
-    req.on('data', (data) => {
-        body = body + data;
-    });
-    return body;
-}
+
 function authIsOwner(req) {
     var isOwner = false;
     var cookies = {};
@@ -59,6 +53,7 @@ module.exports = {
                 })
             });
         },
+
         page : (req,res) => {
             var login = authStatusUI(req);
             var id = req.params.pageId;
@@ -80,6 +75,7 @@ module.exports = {
                 });
             });
         },
+
     create : (req, res) => {
         var login = authStatusUI(req);
         db.query(`SELECT * FROM topic`, (error, topics) => {
@@ -109,22 +105,36 @@ module.exports = {
             });
         });
     },
+
     create_process : (req, res) => {
-        var body = dataLoad(req);
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
         req.on('end', () => {
             var post = qs.parse(body);
-            sTitle = sanitizeHtml(post.title)
-            sDescrpt = sanitizeHtml(post.description)
-            sAuthor = sanitizeHtml(post.author)
-            db.query(`INSERT INTO topic (title, descrpt, created, author_id) VALUES(?, ?, NOW(),?)`,
-            [sTitle, sDescrpt, sAuthor],
-            (error, result) => {
-                if (error) throw error;
-                res.redirect(`/page/${result.insertId}`)
-                res.end();
-            });
+            sTitle = sanitizeHtml(post.title);
+            sDescrpt = sanitizeHtml(post.description);
+            sAuthor = sanitizeHtml(post.author);
+            if ( !authIsOwner(req) ) {
+                res.write(`
+                <script type="text/javascript">
+                alert("ERROR :: Create is need to login");
+                location.href = "/";
+                </script>`);
+            }
+            else {
+                db.query(`INSERT INTO topic (title, descrpt, created, author_id) VALUES(?, ?, NOW(),?)`,
+                [sTitle, sDescrpt, sAuthor],
+                (error, result) => {
+                    if (error) throw error;
+                    res.redirect(`/page/${result.insertId}`)
+                    res.end();
+                });
+            }
         });
     },
+
     update : (req, res) => {
         var login = authStatusUI(req);
         id = req.params.pageId;
@@ -165,30 +175,54 @@ module.exports = {
     },
 
     update_process : (req, res) => {
-        var body = dataLoad(req);
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
         req.on('end', () => {
             var post = qs.parse(body);
             sTitle = sanitizeHtml(post.title)
             sDescrpt = sanitizeHtml(post.description)
             sAuthor = sanitizeHtml(post.author)
-            db.query('UPDATE topic SET title=?, descrpt=?, author_id = ? WHERE id=?',
-            [sTitle, sDescrpt, sAuthor, post.id],
-            (error, result) => {
-                res.writeHead(302, {Location: `/page/${post.id}`});
-                res.end();
-            });
+            if ( !authIsOwner(req) ) {
+                res.write(`
+                <script type="text/javascript">
+                alert("ERROR :: Update is need to login");
+                location.href = "/";
+                </script>`);
+            }
+            else {
+                db.query('UPDATE topic SET title=?, descrpt=?, author_id = ? WHERE id=?',
+                [sTitle, sDescrpt, sAuthor, post.id],
+                (error, result) => {
+                    res.writeHead(302, {Location: `/page/${post.id}`});
+                    res.end();
+                });
+            }
+
         });
     },
+    
     delete_process : (req, res) => {
         id = req.params.pageId;
-        db.query('DELETE FROM topic WHERE id = ?',
-        [id],
-        (error, result) => {
-            if( error ) throw error;
-            res.writeHead(302, {Location: `/`});
-            res.end();
-        });
+        if ( !authIsOwner(req) ) {
+            res.write(`
+            <script type="text/javascript">
+            alert("ERROR :: Delete is need to login");
+            location.href = "/";
+            </script>`);
+        }
+        else {
+            db.query('DELETE FROM topic WHERE id = ?',
+            [id],
+            (error, result) => {
+                if( error ) throw error;
+                res.writeHead(302, {Location: `/`});
+                res.end();
+            });
+        }
     },
+
     login : (req, res) => {
         var login  = `<a href = "/login">login</a>`
         db.query('SELECT * FROM topic', (error, topics) => {
@@ -210,20 +244,32 @@ module.exports = {
             })
         });
     },
+
     login_process : (req, res) => {
-        var body = dataLoad(req);
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
         req.on('end', () => {
-        if (post.email === 'admin' && post.password === 'admin') {
-            res.writeHead(302, {
-                'Set-Cookie': [
-                    `email = ${post.email}`,
-                    `password = ${post.password}`,
-                    `nickame= admin`],
-                    Location: `/`
-            });
-            res.end();
-        }
-        else res.end('Who?');
+            var post = qs.parse(body);
+            if (post.email === 'admin' && post.password === 'admin') {
+                res.writeHead(302, {
+                    'Set-Cookie': [
+                        `email = ${post.email}`,
+                        `password = ${post.password}`,
+                        `nickame = admin`],
+                        Location: `/`
+                });
+                res.end();
+            }
+            else {
+                res.end(`
+                <script type="text/javascript">
+                alert("ERROR :: No Username or Password");
+                location.href = "/";
+                </script>`
+                );
+            }
         });
     },
 
