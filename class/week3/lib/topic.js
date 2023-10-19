@@ -17,10 +17,13 @@ function univContext(id) {
     return createContext + `<a href="/update/${id}">update</a>&nbsp;&nbsp;<a href="/delete/${id}" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>delete</a>`;
 } // Context Merge
 
-function selectAuthor(tag) {
-    return `<p><select name="author">${tag}</select></p>`;
+function dataLoad(req) {
+    var body = '';
+    req.on('data', (data) => {
+        body = body + data;
+    });
+    return body;
 }
-
 function authIsOwner(req) {
     var isOwner = false;
     var cookies = {};
@@ -60,33 +63,27 @@ module.exports = {
             var login = authStatusUI(req);
             var id = req.params.pageId;
             db.query('SELECT * FROM topic', (error, topics) => {
-                if( error ) {
-                    throw error;
-                }
-                db.query(`SELECT * FROM topic LEFT JOIN author ON topic.author_id = author.id WHERE topic.id = ${id}`
-                ,(error2, topic) => {
-                    if ( error2 ) {
-                        throw error2;
-                    }
-                var context = {
-                    lg: login,
-                    title: "Topic detail",
-                    list: topics,
-                    control: univContext(id),
-                    body: `<h2>${topic[0].title}</h2><p>${topic[0].descrpt}</p><p>by ${topic[0].name}</p>`
-                };
-                res.app.render('home', context, (err, html)=> {
-                    res.end(html);
-                })
-        })
-        });
+                if ( error ) throw error;
+                db.query(`SELECT * FROM topic LEFT JOIN author ON topic.author_id = author.id WHERE topic.id = ${id}`,
+                (error2, topic) => {
+                    if ( error2 ) throw error2;
+                    var context = {
+                        lg: login,
+                        title: "Topic detail",
+                        list: topics,
+                        control: univContext(id),
+                        body: `<h2>${topic[0].title}</h2><p>${topic[0].descrpt}</p><p>by ${topic[0].name}</p>`
+                    };
+                    res.app.render('home', context, (err, html)=> {
+                        res.end(html);
+                    });
+                });
+            });
         },
     create : (req, res) => {
         var login = authStatusUI(req);
         db.query(`SELECT * FROM topic`, (error, topics) => {
-            if (error) {
-                throw error;
-            }
+            if (error) throw error;
             db.query(`SELECT * FROM author`, (err, authors) => {
                 var i = 0;
                 var tag = '';
@@ -99,11 +96,12 @@ module.exports = {
                     title: 'Topic Create',
                     list: topics,
                     control: createContext,
-                    body: `<form action="/create_process" method="post">
-                <p><input type="text" name="title" placeholder="title"></p>
-                <p><textarea name="description" placeholder="description"></textarea></p> + 
-                ${selectAuthor(tag)} +
-                <p><input type="submit"></p></form>`
+                    body: `
+                    <form action="/create_process" method="post">
+                    <p><input type="text" name="title" placeholder="title"></p>
+                    <p><textarea name="description" placeholder="description"></textarea></p>
+                    <p><select name="author">${tag}</select></p>
+                    <p><input type="submit"></p></form>`
                 };
                 req.app.render('home', context, (err, html) => {
                     res.end(html);
@@ -112,10 +110,7 @@ module.exports = {
         });
     },
     create_process : (req, res) => {
-        var body = '';
-        req.on('data', (data) => {
-            body = body + data;
-        });
+        var body = dataLoad(req);
         req.on('end', () => {
             var post = qs.parse(body);
             sTitle = sanitizeHtml(post.title)
@@ -124,9 +119,7 @@ module.exports = {
             db.query(`INSERT INTO topic (title, descrpt, created, author_id) VALUES(?, ?, NOW(),?)`,
             [sTitle, sDescrpt, sAuthor],
             (error, result) => {
-                if (error) {
-                    throw error;
-                }
+                if (error) throw error;
                 res.redirect(`/page/${result.insertId}`)
                 res.end();
             });
@@ -136,24 +129,16 @@ module.exports = {
         var login = authStatusUI(req);
         id = req.params.pageId;
         db.query('SELECT * FROM topic', (error, topics) => {
-            if ( error ) {
-                throw error;
-            }
+            if ( error ) throw error;
             db.query(`SELECT * FROM topic WHERE id=?`, [id], (error2, topic) => {
-                if ( error2 ) {
-                    throw error2;
-                }
+                if ( error2 ) throw error2;
                 db.query(`SELECT * FROM author`, (err, authors) => {
-                    if ( err ) {
-                        throw err;
-                    }
+                    if ( err ) throw err;
                     var i = 0;
                     var tag = '';
                     while ( i < authors.length ) {
                         var selected = '';
-                        if ( authors[i].id === (topic[0].author_id) ) {
-                            selected = ' selected';
-                        }
+                        if ( authors[i].id === (topic[0].author_id) ) selected = ' selected';
                         tag += `<option value="${authors[i].id}"${selected}>${authors[i].name}</option>`;
                         i++;
                     }
@@ -162,15 +147,17 @@ module.exports = {
                         title: 'Topic Update',
                         list: topics,
                         control: univContext(topic[0].id),
-                        body: `<form action="/update_process" method="post">
+                        body: `
+                        <form action="/update_process" method="post">
                         <input type="hidden" name="id" value="${topic[0].id}">
                         <p><input type="text" name="title" placeholder="title" value="${topic[0].title}"></p>
                         <p><textarea name="description" placeholder="description">${topic[0].descrpt}</textarea></p>
                         <p><input type="submit"></p>
-                        </form>`
+                        </form>
+                        `
                     };
                     req.app.render('home', context, (err, html) => {
-                            res.end(html);
+                        res.end(html);
                     });
                 });
             });
@@ -178,10 +165,7 @@ module.exports = {
     },
 
     update_process : (req, res) => {
-        var body = '';
-        req.on('data', (data) => {
-            body = body + data;
-        });
+        var body = dataLoad(req);
         req.on('end', () => {
             var post = qs.parse(body);
             sTitle = sanitizeHtml(post.title)
@@ -200,9 +184,8 @@ module.exports = {
         db.query('DELETE FROM topic WHERE id = ?',
         [id],
         (error, result) => {
-            if( error ) {
-                throw error;
-            } res.writeHead(302, {Location: `/`});
+            if( error ) throw error;
+            res.writeHead(302, {Location: `/`});
             res.end();
         });
     },
@@ -228,37 +211,19 @@ module.exports = {
         });
     },
     login_process : (req, res) => {
-        var body = '';
-        req.on('data', (data) => {
-            body = body + data;
-        });
+        var body = dataLoad(req);
         req.on('end', () => {
-            var post = qs.parse(body);
-                        /* DB Code
-            sEmail = sanitizeHtml(post.email);
-            sPassword = sanitizeHtml(post.password);
-            db.query(
-                `INSERT INTO user VALUES email = ?, password = ?`,
-                [sEmail, sPassword],
-                (error, result) => {
-                    res.writeHead(302, {Location: `/login`});
-                    res.end();
-                });
-            */
-
-            if (post.email === 'admin' && post.password === 'admin') {
-                res.writeHead(302, {
-                    'Set-Cookie': [
-                        `email = ${post.email}`,
-                        `password = ${post.password}`,
-                        `nickame= admin`]
-                    , Location: `/`
-                });
-                res.end();
-            }
-            else {
-                res.end('Who?');
-            }
+        if (post.email === 'admin' && post.password === 'admin') {
+            res.writeHead(302, {
+                'Set-Cookie': [
+                    `email = ${post.email}`,
+                    `password = ${post.password}`,
+                    `nickame= admin`],
+                    Location: `/`
+            });
+            res.end();
+        }
+        else res.end('Who?');
         });
     },
 
@@ -267,8 +232,7 @@ module.exports = {
                 'Set-Cookie': [
                     `email=; Max-Age=0`,
                     `password=; Max-Age=0`,
-                    `nickname=; Max-Age=0`,
-                    `Permanent=; Max-Age=0`
+                    `nickname=; Max-Age=0`
                 ],
                 Location: '/'
             });
