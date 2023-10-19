@@ -15,12 +15,28 @@ var cookie = require('cookie');
 var topic = require('./lib/topic');
 var author = require('./lib/author');
 
+
+
+app.get('/login', (req, res) => {
+    topic.login(req, res);
+})
+
+app.post('/login_process', (req, res) => {
+    topic.login_process(req, res);
+})
+
+app.get('/logout_process', (req, res) => {
+    topic.logout_process(req, res);
+})
+
 // ====================== Topic Page ======================
 // app.get('/', (req, res) => {
 //     topic.home(req, res);
 // })
 
-app.get('/', )
+app.get('/', (req, res) => {
+    topic.home(req, res);
+})
 
 
 app.get('/page/:pageId', (req, res) => {

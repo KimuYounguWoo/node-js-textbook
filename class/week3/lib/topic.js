@@ -1,18 +1,55 @@
 // 201935231 컴퓨터공학과 김용우
+
 var qs = require('querystring');
+// querystring module
+
 const db = require('./db');
+// db module
+
 var sanitizeHtml = require('sanitize-html');
+// sanitize-html module
+
+var cookie = require('cookie');
+// cookie module
+
+var createContext= '<a href="/create">create</a>&nbsp;&nbsp;';
+function univContext(id) {
+    return createContext + `<a href="/update/${id}">update</a>&nbsp;&nbsp;<a href="/delete/${id}" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>delete</a>`;
+} // Context Merge
+
+function selectAuthor(tag) {
+    return `<p><select name="author">${tag}</select></p>`;
+}
+
+function authIsOwner(req) {
+    var isOwner = false;
+    var cookies = {};
+    if ( req.headers.cookie ) {
+        cookies = cookie.parse(req.headers.cookie);
+    }
+    if ( cookies.email === 'admin' && cookies.password === 'admin' ) {
+        isOwner = true;
+    }
+    return isOwner;
+} // Check cookie -> this user is alright?
+
+function authStatusUI(req) {
+    var login = '<a href = "/login">login</a>';
+    if (authIsOwner(req)) {
+        login = '<a href="/logout_process">logout</a>'
+    } return login;
+} // login context change
 
 module.exports = {
     home : (req,res) => {
+        var login = authStatusUI(req);
         db.query('SELECT * FROM topic', (error, topics) => {
-            var c = '<a href="/create">create</a>'
-            var b = '<h2>Welcome</h2><p>Node.js Start Page</p>'
             var context = {
+                lg: login,
                 title: 'Topic list',
                 list: topics,
-                control: c,
-                body: b
+                control: createContext,
+                body: '<h2>Welcome</h2><p>Node.js Start Page</p>'
             };
                 req.app.render('home', context, (err, html)=> {
                     res.end(html)
@@ -20,6 +57,7 @@ module.exports = {
             });
         },
         page : (req,res) => {
+            var login = authStatusUI(req);
             var id = req.params.pageId;
             db.query('SELECT * FROM topic', (error, topics) => {
                 if( error ) {
@@ -30,13 +68,12 @@ module.exports = {
                     if ( error2 ) {
                         throw error2;
                     }
-                var c = `<a href="/create">create</a>&nbsp;&nbsp;<a href="/update/${id}">update</a>&nbsp;&nbsp; <a href="/delete/${id}" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>delete</a>` 
-                var b = `<h2>${topic[0].title}</h2><p>${topic[0].descrpt}</p><p>by ${topic[0].name}</p>`
                 var context = {
+                    lg: login,
                     title: "Topic detail",
                     list: topics,
-                    control: c,
-                    body: b
+                    control: univContext(id),
+                    body: `<h2>${topic[0].title}</h2><p>${topic[0].descrpt}</p><p>by ${topic[0].name}</p>`
                 };
                 res.app.render('home', context, (err, html)=> {
                     res.end(html);
@@ -45,6 +82,7 @@ module.exports = {
         });
         },
     create : (req, res) => {
+        var login = authStatusUI(req);
         db.query(`SELECT * FROM topic`, (error, topics) => {
             if (error) {
                 throw error;
@@ -57,15 +95,14 @@ module.exports = {
                     i++;
                 }
                 var context = {
+                    lg: login,
                     title: 'Topic Create',
                     list: topics,
-                    control: `<a href="/create">create</a>`,
+                    control: createContext,
                     body: `<form action="/create_process" method="post">
                 <p><input type="text" name="title" placeholder="title"></p>
-                <p><textarea name="description" placeholder="description"></textarea></p>
-                <p><select name="author">
-                ${tag}
-                </select></p>
+                <p><textarea name="description" placeholder="description"></textarea></p> + 
+                ${selectAuthor(tag)} +
                 <p><input type="submit"></p></form>`
                 };
                 req.app.render('home', context, (err, html) => {
@@ -96,6 +133,7 @@ module.exports = {
         });
     },
     update : (req, res) => {
+        var login = authStatusUI(req);
         id = req.params.pageId;
         db.query('SELECT * FROM topic', (error, topics) => {
             if ( error ) {
@@ -120,16 +158,14 @@ module.exports = {
                         i++;
                     }
                     var context = {
+                        lg: login,
                         title: 'Topic Update',
                         list: topics,
-                        control: `<a href="/create">create</a> <a href="/update/${topic[0].id}">update</a>`,
+                        control: univContext(topic[0].id),
                         body: `<form action="/update_process" method="post">
                         <input type="hidden" name="id" value="${topic[0].id}">
                         <p><input type="text" name="title" placeholder="title" value="${topic[0].title}"></p>
                         <p><textarea name="description" placeholder="description">${topic[0].descrpt}</textarea></p>
-                        <p><select name="author">
-                        ${tag}
-                        </select></p>
                         <p><input type="submit"></p>
                         </form>`
                     };
@@ -169,5 +205,73 @@ module.exports = {
             } res.writeHead(302, {Location: `/`});
             res.end();
         });
+    },
+    login : (req, res) => {
+        var login  = `<a href = "/login">login</a>`
+        db.query('SELECT * FROM topic', (error, topics) => {
+            var context = {
+                lg: login,
+                title: 'Login',
+                list: topics,
+                control: createContext,
+                body: `
+                    <form action = "/login_process" method = "post">
+                    <p><input type="text" name \="email" placeholder="email" value="email"</p>
+                    <p><input type="password" name="password" placeholder="password" value="password"</p>
+                    <p><input type="submit"></p>
+                    </form>
+                    `
+            };
+            req.app.render('home', context, (err, html) => {
+            res.end(html)
+            })
+        });
+    },
+    login_process : (req, res) => {
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
+        req.on('end', () => {
+            var post = qs.parse(body);
+                        /* DB Code
+            sEmail = sanitizeHtml(post.email);
+            sPassword = sanitizeHtml(post.password);
+            db.query(
+                `INSERT INTO user VALUES email = ?, password = ?`,
+                [sEmail, sPassword],
+                (error, result) => {
+                    res.writeHead(302, {Location: `/login`});
+                    res.end();
+                });
+            */
+
+            if (post.email === 'admin' && post.password === 'admin') {
+                res.writeHead(302, {
+                    'Set-Cookie': [
+                        `email = ${post.email}`,
+                        `password = ${post.password}`,
+                        `nickame= admin`]
+                    , Location: `/`
+                });
+                res.end();
+            }
+            else {
+                res.end('Who?');
+            }
+        });
+    },
+
+    logout_process : (req, res) => {
+            res.writeHead(302, {
+                'Set-Cookie': [
+                    `email=; Max-Age=0`,
+                    `password=; Max-Age=0`,
+                    `nickname=; Max-Age=0`,
+                    `Permanent=; Max-Age=0`
+                ],
+                Location: '/'
+            });
+            res.end();
     },
 }
