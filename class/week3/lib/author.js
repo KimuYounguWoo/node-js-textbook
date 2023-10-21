@@ -199,8 +199,11 @@ module.exports = {
                 });
                 }
                 else {
-                    res.send(`<script>alert("삭제 불가능")</script>`)
-                    res.redirect(`/author`)
+                    res.send(`
+                    <script>
+                    alert("삭제 불가능")
+                    location.href = "/author";
+                    </script>`)
                 }
                 res.writeHead(302, {Location: `/author`});
                 res.end();

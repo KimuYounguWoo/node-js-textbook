@@ -160,6 +160,7 @@ module.exports = {
                         body: `
                         <form action="/update_process" method="post">
                         <input type="hidden" name="id" value="${topic[0].id}">
+                        <input type="hidden" name="author" value="${topic[0].author_id}">
                         <p><input type="text" name="title" placeholder="title" value="${topic[0].title}"></p>
                         <p><textarea name="description" placeholder="description">${topic[0].descrpt}</textarea></p>
                         <p><input type="submit"></p>
@@ -182,7 +183,7 @@ module.exports = {
         req.on('end', () => {
             var post = qs.parse(body);
             sTitle = sanitizeHtml(post.title)
-            sDescrpt = sanitizeHtml(post.description)
+            sDescrpt = sanitizeHtml(post.description);
             sAuthor = sanitizeHtml(post.author)
             if ( !authIsOwner(req) ) {
                 res.write(`
