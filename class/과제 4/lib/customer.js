@@ -70,7 +70,12 @@ module.exports = {
         });
     },
     create_process : (req,res) => {
-            var post = req.body;
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
+        req.on('end', () => {
+            var post = qs.parse(body);
             db.query(`INSERT INTO customer (name, address, birth, phone) VALUES(?, ?, ?, ?)`,
             [post.name, post.address, post.birth, post.phone],
             (error, result) => {
@@ -80,6 +85,7 @@ module.exports = {
                 res.writeHead(302, {Location: `/page/${result.insertId}`});
                 res.end();
             });
+        });
     },
     update : function(req, res) {
         id = req.params.pageId;
@@ -113,13 +119,19 @@ module.exports = {
             });
         },
     update_process : (req, res) => {
-            var post = req.body;
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
+        req.on('end', () => {
+            var post = qs.parse(body);
             db.query('UPDATE customer SET name=?, address=?, birth=?, phone=? WHERE id=?',
             [post.name, post.address, post.birth, post.phone, post.id],
             (error, result) => {
                 res.writeHead(302, {Location: `/page/${post.id}`});
                 res.end();
             });
+        });
     },
     delete_process : (req, res) => {
         id = req.params.pageId;

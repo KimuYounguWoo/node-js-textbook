@@ -11,9 +11,17 @@ var sanitizeHtml = require('sanitize-html');
 var cookie = require('cookie');
 // cookie module
 
+
 function authIsOwner(req) {
-    if (req.session.is_logined) return true;
-    else return false;
+    var isOwner = false;
+    var cookies = {};
+    if ( req.headers.cookie ) {
+        cookies = cookie.parse(req.headers.cookie);
+    }
+    if ( cookies.email === 'admin' && cookies.password === 'admin' ) {
+        isOwner = true;
+    }
+    return isOwner;
 } // Check cookie -> this user is alright?
 
 function authStatusUI(req) {
@@ -63,7 +71,12 @@ module.exports = {
         });
     },
     create_process : (req, res) => {
-            var post = req.body;
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
+        req.on('end', () => {
+            var post = qs.parse(body);
             sName = sanitizeHtml(post.name)
             sProfile = sanitizeHtml(post.profile)
             if ( !authIsOwner(req) ) {
@@ -85,6 +98,7 @@ module.exports = {
                         res.end();
                 });
             }
+        });
     },
     update : (req,res) => {
         var login = authStatusUI(req);
@@ -131,7 +145,12 @@ module.exports = {
         });
     },
     update_process : (req, res) => {
-            var post = req.body;
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
+        req.on('end', () => {
+            var post = qs.parse(body);
             sName = sanitizeHtml(post.name)
             sProfile = sanitizeHtml(post.profile)
             if ( !authIsOwner(req) ) {
@@ -150,22 +169,25 @@ module.exports = {
                         res.end();
                 });
             }
+        });
     },
     delete_process : (req, res) => {
         id = req.params.id; // Author id
+        a = "삭제 가능";
+        b = "삭제 불가능";
         if ( !authIsOwner(req) ) {
             res.write(`
             <script type="text/javascript">
             alert("ERROR :: Delete is need to login");
             location.href = "/";
-            </script>`); // login check
+            </script>`);
         }
         else {
             db.query(`SELECT * FROM topic WHERE author_id = ${id}`, (error, topic) => { // topic이 없으면
                 if ( error ) {
                     throw error;
                 }
-                if ( topic.length === 0 ) { // topic이 없으면
+                if ( topic.length === 0 ) {
                     db.query('DELETE FROM author WHERE id = ?',
                     [id],
                     (error, result) => {
@@ -176,14 +198,16 @@ module.exports = {
                     res.end();
                 });
                 }
-                else {  // topic이 있으면
+                else {
                     res.send(`
                     <script>
                     alert("삭제 불가능")
                     location.href = "/author";
                     </script>`)
                 }
-            });
+                res.writeHead(302, {Location: `/author`});
+                res.end();
+                });
         }
     },
 }

@@ -12,12 +12,6 @@ var sanitizeHtml = require('sanitize-html');
 var cookie = require('cookie');
 // cookie module
 
-var createContext= '<a href="/create">create</a>&nbsp;&nbsp;';
-function univContext(id) {
-    return createContext + `<a href="/update/${id}">update</a>&nbsp;&nbsp;<a href="/delete/${id}" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>delete</a>`;
-} // Context Merge
-
-
 function authIsOwner(req) {
     if (req.session.is_logined) return true;
     else return false;

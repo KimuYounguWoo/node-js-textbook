@@ -19,9 +19,16 @@ function univContext(id) {
 
 
 function authIsOwner(req) {
-    if (req.session.is_logined) return true;
-    else return false;
-}
+    var isOwner = false;
+    var cookies = {};
+    if ( req.headers.cookie ) {
+        cookies = cookie.parse(req.headers.cookie);
+    }
+    if ( cookies.email === 'admin' && cookies.password === 'admin' ) {
+        isOwner = true;
+    }
+    return isOwner;
+} // Check cookie -> this user is alright?
 
 function authStatusUI(req) {
     var login = '<a href = "/login">login</a>';
@@ -100,7 +107,12 @@ module.exports = {
     },
 
     create_process : (req, res) => {
-            var post = req.body;
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
+        req.on('end', () => {
+            var post = qs.parse(body);
             sTitle = sanitizeHtml(post.title);
             sDescrpt = sanitizeHtml(post.description);
             sAuthor = sanitizeHtml(post.author);
@@ -120,6 +132,7 @@ module.exports = {
                     res.end();
                 });
             }
+        });
     },
 
     update : (req, res) => {
@@ -163,7 +176,12 @@ module.exports = {
     },
 
     update_process : (req, res) => {
-            var post = req.body;
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
+        req.on('end', () => {
+            var post = qs.parse(body);
             sTitle = sanitizeHtml(post.title)
             sDescrpt = sanitizeHtml(post.description);
             sAuthor = sanitizeHtml(post.author)
@@ -182,6 +200,8 @@ module.exports = {
                     res.end();
                 });
             }
+
+        });
     },
     
     delete_process : (req, res) => {
@@ -214,7 +234,7 @@ module.exports = {
                 control: createContext,
                 body: `
                     <form action = "/login_process" method = "post">
-                    <p><input type="text" name ="email" placeholder="email" value="email"</p>
+                    <p><input type="text" name \="email" placeholder="email" value="email"</p>
                     <p><input type="password" name="password" placeholder="password" value="password"</p>
                     <p><input type="submit"></p>
                     </form>
@@ -226,12 +246,22 @@ module.exports = {
         });
     },
 
-
     login_process : (req, res) => {
-            var post = req.body;
+        var body = '';
+        req.on('data', (data) => {
+            body = body + data;
+        });
+        req.on('end', () => {
+            var post = qs.parse(body);
             if (post.email === 'admin' && post.password === 'admin') {
-                req.session.is_logined = true;
-                res.redirect('/');
+                res.writeHead(302, {
+                    'Set-Cookie': [
+                        `email = ${post.email}`,
+                        `password = ${post.password}`,
+                        `nickame = admin`],
+                        Location: `/`
+                });
+                res.end();
             }
             else {
                 res.end(`
@@ -241,19 +271,18 @@ module.exports = {
                 </script>`
                 );
             }
+        });
     },
 
     logout_process : (req, res) => {
-        req.session.destroy( (err) => {
-            res.redirect('/');
-        })
-    },
-    upload: (req,res) => {
-        var context = {
-            lg: ''
-        };
-        req.app.render('uploadtest' ,context, (err, html) => {
-            res.end(html);
-        });
+            res.writeHead(302, {
+                'Set-Cookie': [
+                    `email=; Max-Age=0`,
+                    `password=; Max-Age=0`,
+                    `nickname=; Max-Age=0`
+                ],
+                Location: '/'
+            });
+            res.end();
     },
 }

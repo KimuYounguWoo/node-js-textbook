@@ -1,6 +1,6 @@
 // 201935231 컴퓨터공학과 김용우
 
-// ====================== EXPRESS & EJS ======================
+// ====================== EXPRESS & EJS (VIEW) ======================
 const express = require('express');
 const app = express();
 
@@ -29,7 +29,7 @@ var bodyParaser = require('body-parser');
 
 // 5. Router
 var rootRouter = require('./router/rootRouter');
-var authorRouter = require('./router/authorRouter');
+var authRouter = require('./router/authRouter');
     
 
 // ====================== SESSION, STORE ======================
@@ -45,7 +45,7 @@ app.use(bodyParaser.urlencoded( {extended: false} ));
 
 // ====================== ROUTE ======================
 app.use('/', rootRouter);
-app.use('/author', authorRouter);
+app.use('/auth', authRouter);
 
 // ====================== STATIC =====================
 app.use(express.static('public'));
