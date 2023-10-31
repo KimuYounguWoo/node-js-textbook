@@ -12,12 +12,6 @@ var sanitizeHtml = require('sanitize-html');
 var cookie = require('cookie');
 // cookie module
 
-var createContext= '<a href="/create">create</a>&nbsp;&nbsp;';
-function univContext(id) {
-    return createContext + `<a href="/update/${id}">update</a>&nbsp;&nbsp;<a href="/delete/${id}" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>delete</a>`;
-} // Context Merge
-
-
 function authIsOwner(req) {
     if (req.session.is_logined) return true;
     else return false;
@@ -32,55 +26,47 @@ function authStatusUI(req) {
 
 module.exports = {
     login : (req, res) => {
-        var login  = `<a href = "/login">login</a>`
-        db.query('SELECT * FROM topic', (error, topics) => {
-            var context = {
-                lg: login,
-                title: 'Login',
-                list: topics,
-                control: createContext,
-                body: `
-                    <form action = "/login_process" method = "post">
-                    <p><input type="text" name ="email" placeholder="email" value="email"</p>
-                    <p><input type="password" name="password" placeholder="password" value="password"</p>
-                    <p><input type="submit"></p>
-                    </form>
-                    `
-            };
-            req.app.render('home', context, (err, html) => {
-            res.end(html)
-            })
-        });
+        var context = {
+            menu: 'menuForGuest.ejs',
+            who: '손님',
+            body: 'login.ejs',
+            logined: 'NO'
+        };
+        req.app.render('home', context, (err, html) => {
+            res.end(html);
+        })
     },
 
 
     login_process : (req, res) => {
-            var post = req.body;
-            if (post.email === 'admin' && post.password === 'admin') {
-                req.session.is_logined = true;
+        var post = req.body;
+        db.query(
+            'select count(*) as num from person where loginid = ? and password = ?',
+            [post.id, post.pwd],
+            (error, results) => {
+                if (results[0].num === 1) {
+                    db.query('select name, class from person where loginid = ? and password = ?',
+                    [post.id, post.pwd],
+                    (error, result) => {
+                        req.session.is_logined = true;
+                        req.session.name = result[0].name
+                        req.session.class = result[0].class
+                        res.redirect('/');
+                    })
+                } else {
+                    req.session.is_logined = false;
+                    req.session.name = '손님';
+                    req.session.class = '99';
+                    res.redirect('/');
+                }
+            }
+        )
+    },
+    logout_process: (req, res) => {
+        req
+            .session
+            .destroy((err) => {
                 res.redirect('/');
-            }
-            else {
-                res.end(`
-                <script type="text/javascript">
-                alert("ERROR :: No Username or Password");
-                location.href = "/";
-                </script>`
-                );
-            }
-    },
-
-    logout_process : (req, res) => {
-        req.session.destroy( (err) => {
-            res.redirect('/');
-        })
-    },
-    upload: (req,res) => {
-        var context = {
-            lg: ''
-        };
-        req.app.render('uploadtest' ,context, (err, html) => {
-            res.end(html);
-        });
-    },
+            })
+    }
 }

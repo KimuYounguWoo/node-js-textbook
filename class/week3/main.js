@@ -32,6 +32,7 @@ var rootRouter = require('./router/rootRouter');
 var authorRouter = require('./router/authorRouter');
     
 
+// ====================== Apply ===============================
 // ====================== SESSION, STORE ======================
 app.use(session({
     secret : 'keyboard cat',
