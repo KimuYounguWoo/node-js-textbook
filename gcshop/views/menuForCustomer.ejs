@@ -60,9 +60,17 @@
                 <span class="navbar-toggler-icon"></span>
               </button>
             </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/auth/logout_process">로그아웃</a></li>
-            </ul>
+              <ul class="dropdown-menu">
+                  <% if(logined === 'YES'){ %>
+                      <li>
+                          <a class="dropdown-item" href="/auth/logout_process">로그아웃</a>
+                      </li>
+                  <% } else { %>
+                      <li><a class="dropdown-item" href="/auth/login">로그인</a></li>
+                      <li><a class="dropdown-item" href="#">회원가입</a></li>
+                      <li><a class="dropdown-item" href="#">아이디/비번찾기</a></li>
+                  <% } %>
+              </ul>
           </li>
         </ul>
         <!-- 로그인 끝 -->
@@ -71,7 +79,9 @@
 
       <!-- 사용자 메뉴 시작-->
       <nav class="navbar bg-body-tertiary">
-        <button class="btn btn-sm btn-outline-warning me-2" type="button">구매내역</button>
+        <% if (logined === 'YES') { %>
+          <button class="btn btn-sm btn-outline-warning me-2" type="button">구매내역</button>
+          <% } %>
         <button class="btn btn-sm btn-outline-warning me-2" type="button">장바구니</button>
       </nav>
 

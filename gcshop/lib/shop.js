@@ -50,7 +50,7 @@ module.exports = {
             }
         } else {
             var context = {
-                menu: 'menuForGuest.ejs',
+                menu: 'menuForCustomer.ejs',
                 who: '손님',
                 body: 'items.ejs',
                 logined: 'NO'
