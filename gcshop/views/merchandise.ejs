@@ -1,0 +1,54 @@
+
+<% if (act === 'v') { %>
+    <% if (lists.length === 0) { %>
+        <table class="table table-bordered ">
+            <tr><td>내용 없음</td></tr>
+        </table>
+    <% } else { %>
+        <% var i = 0
+              while(i < lists.length)
+              { %>
+        <table class="table table-bordered ">
+            <tr>
+                <td>
+                    <img src="" style="width:100px;height:100px; "></td>
+                    <td><%= lists[i].mer_id %></td>
+                    <td><%= lists[i].name %></td>
+                    <td>가격:
+                        <%= lists[i].price %>
+                    </td>
+                    <td>브랜드:
+                        <%= lists[i].brand %></td>
+                </tr>
+            </table>
+        <% i += 1 } %>
+    <% } %>
+<% } else { %>
+    <% if (lists.length === 0) { %>
+        <table class="table table-bordered ">
+            <tr><td>내용 없음</td></tr>
+        </table>
+    <% } else { %>
+        <% var i = 0
+              while(i < lists.length)
+              { %>
+        <table class="table table-bordered ">
+            <tr>
+                <td>
+                    <img src="" style="width:100px;height:100px; "></td>
+                    <td><%= lists[i].mer_id %></td>
+                    <td><%= lists[i].name %></td>
+                    <td>가격:
+                        <%= lists[i].price %>
+                    </td>
+                    <td>브랜드:
+                        <%= lists[i].brand %></td>
+                        <td>수정</td>
+                        <td>삭제</td>
+                </tr>
+            </table>
+        <% i += 1 } %>
+    <% } %>
+    
+    
+<% } %>

@@ -1,0 +1,70 @@
+<h3>아이템</h3>
+
+<% if (act === 'v') { %>
+    <% if (lists.length === 0) { %>
+        <table class="table table-bordered border-primary ">
+            <tr>
+                <td>내용 없음</td>
+            </tr>
+        </table>
+    <% } else { %>
+        <% var i = 0
+              while(i < lists.length)
+              { %>
+            <table class="table table-bordered border-primary">
+                <thead>
+                    <td>대분류</td>
+                    <td>대분류명</td>
+                    <td>소분류</td>
+                    <td>소분류명</td>
+                    <td>시작일</td>
+                    <td>종료일</td>
+                </thead>
+    
+                <tr>
+                    <td><%= lists[i].main_id%></td>
+                    <td><%= lists[i].main_name%></td>
+                    <td><%= lists[i].sub_id%></td>
+                    <td><%= lists[i].sub_name%></td>
+                    <td><%= lists[i].start%></td>
+                    <td><%= lists[i].end%></td>
+                </tr>
+    
+            </table>
+            <% i += 1 } %><% } %>
+<% } else { %>
+<% if (lists.length === 0) { %>
+    <table class="table table-bordered border-primary ">
+        <tr>
+            <td>내용 없음</td>
+        </tr>
+    </table>
+<% } else { %>
+    <% var i = 0
+          while(i < lists.length)
+          { %>
+        <table class="table table-bordered border-primary">
+            <thead>
+                <td>대분류</td>
+                <td>대분류명</td>
+                <td>소분류</td>
+                <td>소분류명</td>
+                <td>시작일</td>
+                <td>종료일</td>
+            </thead>
+
+            <tr>
+                <td><%= lists[i].main_id%></td>
+                <td><%= lists[i].main_name%></td>
+                <td><%= lists[i].sub_id%></td>
+                <td><%= lists[i].sub_name%></td>
+                <td><%= lists[i].start%></td>
+                <td><%= lists[i].end%></td>
+                <td>수정</td>
+                <td>삭제</td>
+
+            </tr>
+
+        </table>
+        <% i += 1 } %><% } %>
+<% } %>

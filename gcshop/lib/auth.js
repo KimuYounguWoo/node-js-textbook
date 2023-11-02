@@ -27,7 +27,7 @@ function authStatusUI(req) {
 module.exports = {
     login : (req, res) => {
         var context = {
-            menu: 'menuForGuest.ejs',
+            menu: 'menuForCustomer.ejs',
             who: '손님',
             body: 'login.ejs',
             logined: 'NO'
