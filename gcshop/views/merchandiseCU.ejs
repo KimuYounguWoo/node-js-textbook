@@ -10,9 +10,13 @@
 	<% if (act === 'u') { %>
 		<form action="/merchandise/create_process" method="post" enctype="multipart/form-data">
 			<div class="mb-3">
-				<label class="form-label" for="id">카테고리</label> 
+				<label class="form-label" for="id">\카테고리\</label> 
 				<select name = "category" id = "id">
-					<option value=""></option>
+					<% var i = 0 %>
+					<% while (i < catego.length) { %>
+					<option value="<%= catego[i].sub_id %>">
+						<%= catego[i].sub_name %></option>
+					<% i += 1 } %>
 				</select>
 			</div>
 			<div class="mb-3">
@@ -55,7 +59,11 @@
 			<div class="mb-3">
 				<label class="form-label" for="id">카테고리</label> 
 				<select name = "category" id = "id">
-					<option value=""></option>
+					<% var i = 0 %>
+					<% while (i < catego.length) { %>
+					<option value="<%= catego[i].sub_id %>">
+						<%= catego[i].sub_name %></option>
+					<% i += 1 } %>
 				</select>
 			</div>
 			<div class="mb-3">

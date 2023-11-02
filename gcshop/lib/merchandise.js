@@ -6,22 +6,12 @@ var qs = require('querystring');
 const db = require('./db');
 // db module
 
-function authIsOwner(req) {
-    if (req.session.is_logined) return true;
-    else return false;
-}
-
-function authStatusUI(req) {
-    var login = '<a href = "/login">login</a>';
-    if (authIsOwner(req)) {
-        login = '<a href="/logout_process">logout</a>'
-    } return login;
-} // login context change
+var s = require('sanitize-html');
+// sanitize-html module
 
 module.exports = {
     view : (req, res) => {
         act = req.params.vu;
-        var isOwner = authIsOwner(req, res);
         db.query('select * from merchandise', (err, it) => {
             var context = {
                 menu: 'menuForManager.ejs',
@@ -37,7 +27,9 @@ module.exports = {
         })
     },
     create : (req, res) => {
-        var isOwner = authIsOwner(req, res);
+        db.query("select sub_name, sub_id from code_tbl", (error, cate) => {
+            var i = 0;
+            var tag = '';
             var context = {
                 menu: 'menuForManager.ejs',
                 who: req.session.name,
@@ -45,16 +37,27 @@ module.exports = {
                 logined: 'YES',
                 act: 'c',
                 info: [],
+                catego: cate,
             }
             req.app.render('home', context, (err, html) => {
             res.end(html);
         })
+        })
+
     },
     create_process : (req, res) => {
-        var isOwner = authIsOwner(req, res);
         var post = req.body;
+
+        sName = s(post.name)
+        sPrice = s(post.price)
+        sStock = s(post.stock)
+        sBrand = s(post.brand)
+        sSupplier = s(post.supplier)
+        sSaleYn = s(post.sale_yn)
+        sSalePrice = s(post.sale_price)
+
         db.query(`INSERT INTO merchandise (category, name, price, stock, brand, image, supplier, sale_yn, sale_price) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                ['0001', post.name, post.price, post.stock, post.brand, `/images/${req.file.originalname}`, post.supplier, post.sale_yn, post.sale_price],
+                ['0001', sName, sPrice, sStock, sBrand, `/images/${req.file.originalname}`, sSupplier, sSaleYn, sSalePrice],
                 (error, result) => {
                     if (error) throw error;
                     res.redirect(`/`)
@@ -80,8 +83,15 @@ module.exports = {
     },
     update_process : (req, res, file) => {
         var post = req.body;
+        sName = s(post.name)
+        sPrice = s(post.price)
+        sStock = s(post.stock)
+        sBrand = s(post.brand)
+        sSupplier = s(post.supplier)
+        sSaleYn = s(post.sale_yn)
+        sSalePrice = s(post.sale_price)
             db.query('UPDATE topic SET category=?, name=?, price=?, stock=?, brand=?, image=?, supplier=?, sale_yn=?, sale_price=?',
-            ['0001', post.name, post.price, post.stock, post.brand, file, post.supplier, post.sale_yn, post.sale_price],
+            ['0001', sName, sPrice, sStock, sBrand, file, sSupplier, sSaleYn, sSalePrice],
             (error, result) => {
                 res.writeHead(302, {Location: `/`});
                 res.end();

@@ -12,7 +12,6 @@
             <tr>
                 <td>
                     <img src="" style="width:100px;height:100px; "></td>
-                    <td><%= lists[i].mer_id %></td>
                     <td><%= lists[i].name %></td>
                     <td>가격:
                         <%= lists[i].price %>
@@ -36,15 +35,15 @@
             <tr>
                 <td>
                     <img src="" style="width:100px;height:100px; "></td>
-                    <td><%= lists[i].mer_id %></td>
+                    <td></td>
                     <td><%= lists[i].name %></td>
                     <td>가격:
                         <%= lists[i].price %>
                     </td>
                     <td>브랜드:
                         <%= lists[i].brand %></td>
-                        <td>수정</td>
-                        <td>삭제</td>
+                    <td><a href="/merchandise/update/<%= lists[i].mer_id %>">수정</a></td>
+                    <td><a href="/merchandise/delete_process/<%= lists[i].mer_id %>">삭제</a></td>
                 </tr>
             </table>
         <% i += 1 } %>

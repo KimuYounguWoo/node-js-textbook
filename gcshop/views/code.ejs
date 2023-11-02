@@ -1,5 +1,4 @@
-<h3>아이템</h3>
-
+<h3>코드 View</h3>
 <% if (act === 'v') { %>
     <% if (lists.length === 0) { %>
         <table class="table table-bordered border-primary ">
@@ -60,8 +59,8 @@
                 <td><%= lists[i].sub_name%></td>
                 <td><%= lists[i].start%></td>
                 <td><%= lists[i].end%></td>
-                <td>수정</td>
-                <td>삭제</td>
+                <td><a href="/code/update/<%= lists[i].mer_id %>">수정</a></td>
+                <td><a href="/code/delete_process/<%= lists[i].mer_id %>">삭제</a></td>
 
             </tr>
 
