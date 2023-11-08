@@ -1,0 +1,95 @@
+<!-- 201935231 컴퓨터공학과 김용우 -->
+<% if (logined === 'NO') { %>
+	<script>
+		alert('로그인이 필요합니다.');
+		location.href = '/';
+	</script>
+<% } %>
+<% if (logined === 'USER') { %>
+	<script>
+		alert('권한이 부족합니다.');
+		location.href = '/';
+	</script>
+<% } %>
+<!-- 권한 및 로그인 확인 -->
+<% if (act === 'u') { %>
+<div class="container">	
+    <h2>사용자 수정</h2>
+	<form action="/person/update_process" method="post" >
+		<input class="form-control" type="hidden" name="log_id" id="log_id" value="<%= info[0].loginid%>" />
+		<!-- Target Data hidden input -->
+		<div class="mb-3">
+			<label class="form-label" for="id">ID</label>
+			<input class="form-control" type="text" name="id" id="id" style = "width:300px;" placeholder="<%= info[0].loginid%>" />
+		</div>
+        <div class="mb-3">
+			<label class="form-label" for="id">Password</label>
+			<input class="form-control" type="password" name="pwd" id="pwd" style = "width:300px;" placeholder="<%= info[0].password%>" />
+		</div>
+        <div class="mb-3">pm
+			<label class="form-label" for="id">이름</label>
+			<input class="form-control" type="text" name="name" id="name" style="width:300px;" placeholder="<%= info[0].name%>" />
+		</div>
+        <div class="mb-3">
+			<label class="form-label" for="id">주소</label>
+			<input class="form-control" type="text" name="addr" id="addr" style="width:300px;" placeholder="<%= info[0].address%>"/>
+		</div>
+        <div class="mb-3">
+			<label class="form-label" for="id">전화번호</label>
+			<input class="form-control" type="text" name="tel" id="tel" style="width:300px;" placeholder="<%= info[0].tel%>"/>
+		</div>
+        <div class="mb-3">
+			<label class="form-label" for="id">생일</label>
+			<input class="form-control" type="text" name="birth" id="birth" style="width:300px;" placeholder="<%= info[0].birth%>" />
+		</div>
+		<div class="mb-3">
+			<label class="form-label" for="id">권한</label>
+			<input class="form-control" type="text" name="class" id="class" style="width:300px;" placeholder="<%= info[0].class%>"/>
+		</div>
+		<div class="mb-3">
+			<label class="form-label" for="id">포인트</label>
+			<input class="form-control" type="text" name="point" id="point" style="width:300px;" placeholder="<%= info[0].point%>"/>
+		</div>
+        <button class="btn btn-outline-primary btn-sm" type="submit">입력</button>
+  </form>
+</div>
+<% } else { %>
+	<div class="container">	
+		<h2>코드 입력</h2>
+		<form action="/person/create_process" method="post" >
+			<div class="mb-3">
+				<label class="form-label" for="id">ID</label>
+				<input class="form-control" type="text" name="id" id="id" style = "width:300px;" />
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">Password</label>
+				<input class="form-control" type="password" name="pwd" id="pwd" style = "width:300px;"  />
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">이름</label>
+				<input class="form-control" type="text" name="name" id="name" style="width:300px;" />
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">주소</label>
+				<input class="form-control" type="text" name="addr" id="addr" style="width:300px;" />
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">전화번호</label>
+				<input class="form-control" type="text" name="tel" id="tel" style="width:300px;" />
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">생일</label>
+				<input class="form-control" type="text" name="birth" id="birth" style="width:300px;" />
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">권한</label>
+				<input class="form-control" type="text" name="class" id="class" style="width:300px;" />
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">포인트</label>
+				<input class="form-control" type="text" name="point" id="point" style="width:300px;" />
+			</div>
+			<button class="btn btn-outline-primary btn-sm" type="submit">입력</button>
+	  </form>
+	</div>
+<% } %>

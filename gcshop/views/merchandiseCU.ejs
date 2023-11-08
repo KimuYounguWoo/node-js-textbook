@@ -1,16 +1,31 @@
-<div class="container">	
+<!-- 201935231 컴퓨터공학과 김용우 -->
+<% if (logined === 'NO') { %>
+	<script>
+		alert('로그인이 필요합니다.');
+		location.href = '/';
+	</script>
+<% } %>
+<% if (logined === 'USER') { %>
+	<script>
+		alert('권한이 부족합니다.');
+		location.href = '/';
+	</script>
+<% } %>
+<!-- 권한 및 로그인 확인 -->
+<div class="container">
     <script>
-
         function displayFileName(){
             var fileName = $("#file").val();
             $(".upload-name").val(fileName);
         }
     </script>
-	<h2>상품 수정</h2>
 	<% if (act === 'u') { %>
-		<form action="/merchandise/create_process" method="post" enctype="multipart/form-data">
+		<h2>상품 수정</h2>
+		<form action="/merchandise/update_process" method="post" enctype="multipart/form-data">
+			<input class="form-control" type="hidden" name="mer_id" id="mer_id" value="<%= info[0].mer_id%>" style = "width:300px;" />
+			<!-- Target Data hidden input -->
 			<div class="mb-3">
-				<label class="form-label" for="id">\카테고리\</label> 
+				<label class="form-label" for="id">카테고리</label>
 				<select name = "category" id = "id">
 					<% var i = 0 %>
 					<% while (i < catego.length) { %>
@@ -20,44 +35,44 @@
 				</select>
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">제품명</label> 
+				<label class="form-label" for="id">제품명</label>
 				<input class="form-control" type="text" name="name" style = "width:300px;" placeholder="<%= info[0].name%>" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">가격</label> 
+				<label class="form-label" for="id">가격</label>
 				<input class="form-control" type="text" name="price" style="width:300px;" placeholder="<%= info[0].price%>" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">재고</label> 
+				<label class="form-label" for="id">재고</label>
 				<input class="form-control" type="text" name="stock" style="width:300px;" placeholder="<%= info[0].stock%>" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">브랜드</label> 
+				<label class="form-label" for="id">브랜드</label>
 				<input class="form-control" type="text" name="brand" style="width:300px;" placeholder="<%= info[0].brand%>" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">공급자</label> 
+				<label class="form-label" for="id">공급자</label>
 				<input class="form-control" type="text" name="supplier" style="width:300px;" placeholder="<%= info[0].supplier%>" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">할인여부</label> 
+				<label class="form-label" for="id">할인여부</label>
 				<input class="form-control" type="text" name="sale_yn" style="width:300px;" placeholder="<%= info[0].sale_yn%>" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">할인가격</label> 
+				<label class="form-label" for="id">할인가격</label>
 				<input class="form-control" type="text" name="sale_price" style="width:300px;" placeholder="<%= info[0].sale_price%>" />
 			</div>
-	
 			<div class="mb-3">
 				<input class="upload-name" value="" name = "image" placeholder="<%= info[0].image%>" >
 				<input type="file" id="file" name="uploadFile" onchange="displayFileName()" >
 			</div>
-			<button class="btn btn-outline-primary btn-sm" type="submit">입력</button>
-	  </form>
+			<button class="btn btn-outline-primary btn-sm" type="submit">수정</button>
+		</form>
 	<% } else { %>
+		<h2>상품 생성</h2>
 		<form action="/merchandise/create_process" method="post" enctype="multipart/form-data">
 			<div class="mb-3">
-				<label class="form-label" for="id">카테고리</label> 
+				<label class="form-label" for="id">카테고리</label>
 				<select name = "category" id = "id">
 					<% var i = 0 %>
 					<% while (i < catego.length) { %>
@@ -67,42 +82,38 @@
 				</select>
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">제품명</label> 
+				<label class="form-label" for="id">제품명</label>
 				<input class="form-control" type="text" name="name" style = "width:300px;" placeholder="제품명" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">가격</label> 
+				<label class="form-label" for="id">가격</label>
 				<input class="form-control" type="text" name="price" style="width:300px;" placeholder="가격" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">재고</label> 
+				<label class="form-label" for="id">재고</label>
 				<input class="form-control" type="text" name="stock" style="width:300px;" placeholder="재고" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">브랜드</label> 
+				<label class="form-label" for="id">브랜드</label>
 				<input class="form-control" type="text" name="brand" style="width:300px;" placeholder="브랜드" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">공급자</label> 
+				<label class="form-label" for="id">공급자</label>
 				<input class="form-control" type="text" name="supplier" style="width:300px;" placeholder="공급자" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">할인여부</label> 
+				<label class="form-label" for="id">할인여부</label>
 				<input class="form-control" type="text" name="sale_yn" style="width:300px;" placeholder="할인여부" />
 			</div>
 			<div class="mb-3">
-				<label class="form-label" for="id">할인가격</label> 
+				<label class="form-label" for="id">할인가격</label>
 				<input class="form-control" type="text" name="sale_price" style="width:300px;" placeholder="할인가격" />
 			</div>
-	
 			<div class="mb-3">
 				<input class="upload-name" value="" name = "image" placeholder="이미지파일" >
 				<input type="file" id="file" name="uploadFile" onchange="displayFileName()" >
 			</div>
 			<button class="btn btn-outline-primary btn-sm" type="submit">입력</button>
-	  </form>
+		</form>
 	<% } %>
-    <h2>코드 입력</h2>
-
-	
 </div>

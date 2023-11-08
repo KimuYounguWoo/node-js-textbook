@@ -1,28 +1,21 @@
 // 201935231 컴퓨터공학과 김용우
 
-var qs = require('querystring');
-// querystring module
-
 const db = require('./db');
 // db module
 
-var sanitizeHtml = require('sanitize-html');
-// sanitize-html module
-
-var cookie = require('cookie');
-// cookie module
-
-function authIsOwner(req) {
-    if (req.session.is_logined) return true;
-    else return false;
+function checkManager(req) {
+    if (req.session.class === '00') return 'MANAGER';
+    else if (req.session.class === '02') return 'USER';
+    else return 'NO';
 }
 
-function authStatusUI(req) {
-    var login = '<a href = "/login">login</a>';
-    if (authIsOwner(req)) {
-        login = '<a href="/logout_process">logout</a>'
-    } return login;
-} // login context change
+function authIsOwner(req, res) {
+    if (req.session.is_logined) {
+        return true;
+    } else {
+        return false
+    }
+}
 
 module.exports = {
     home : (req, res) => {
@@ -35,7 +28,7 @@ module.exports = {
                         who: req.session.name,
                         body: 'merchandise.ejs',
                         lists: li,
-                        logined: 'YES',
+                        logined: checkManager(req),
                         act: 'v'
                     };
                 } else if (req.session.class === '01') {
@@ -52,17 +45,17 @@ module.exports = {
                         who: req.session.name,
                         body: 'merchandise.ejs',
                         lists: li,
-                        logined: 'YES',
+                        logined: checkManager(req),
                         act: 'v'
                     };
                 }
             } else {
                 var context = {
-                    menu: 'menuForGuest.ejs',
+                    menu: 'menuForCustomer.ejs',
                     who: '손님',
                     body: 'merchandise.ejs',
                     lists: li,
-                    logined: 'NO',
+                    logined: checkManager(req),
                     act: 'v'
                 };
             }

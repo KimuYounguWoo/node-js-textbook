@@ -1,0 +1,81 @@
+<!-- 201935231 컴퓨터공학과 김용우 -->
+<% if (logined === 'NO') { %>
+	<script>
+		alert('로그인이 필요합니다.');
+		location.href = '/';
+	</script>
+<% } %>
+<% if (logined === 'USER') { %>
+	<script>
+		alert('권한이 부족합니다.');
+		location.href = '/';
+	</script>
+<% } %>
+<!-- 권한 및 로그인 확인 -->
+<% if (act === 'v') { %>
+    <h3>사용자 조회</h3>
+    <% if (lists.length === 0) { %>
+        <table class="table table-bordered border-primary ">
+            <tr><td>내용 없음</td></tr>
+        </table>
+        <% } else { %>
+            <% var i = 0;
+            while(i < lists.length) { %>
+                <table class="table table-bordered border-primary">
+                    <thead>
+                        <td>ID</td>
+                        <td>Password</td>
+                        <td>이름</td>
+                        <td>주소</td>
+                        <td>전화번호</td>
+                        <td>생일</td>
+                        <td>권한</td>
+                        <td>포인트</td>
+                    </thead>
+                    <tr>
+                        <td><%= lists[i].loginid%></td>
+                        <td><%= lists[i].password%></td>
+                        <td><%= lists[i].name%></td>
+                        <td><%= lists[i].address%></td>
+                        <td><%= lists[i].tel%></td>
+                        <td><%= lists[i].birth%></td>
+                        <td><%= lists[i].class%></td>
+                        <td><%= lists[i].point%></td>
+                    </tr>
+                </table>
+            <% i += 1 }} %>
+<% } else { %>
+    <h3>사용자 수정</h3>
+    <% if (lists.length === 0) { %>
+        <table class="table table-bordered border-primary ">
+            <tr><td>내용 없음</td></tr>
+        </table>
+        <% } else { %>
+            <% var i = 0;
+            while(i < lists.length) { %>
+                <table class="table table-bordered border-primary">
+                    <thead>
+                        <td>ID</td>
+                        <td>Password</td>
+                        <td>이름</td>
+                        <td>주소</td>
+                        <td>전화번호</td>
+                        <td>생일</td>
+                        <td>권한</td>
+                        <td>포인트</td>
+                    </thead>
+                    <tr>
+                        <td><%= lists[i].loginid%></td>
+                        <td><%= lists[i].password%></td>
+                        <td><%= lists[i].name%></td>
+                        <td><%= lists[i].address%></td>
+                        <td><%= lists[i].tel%></td>
+                        <td><%= lists[i].birth%></td>
+                        <td><%= lists[i].class%></td>
+                        <td><%= lists[i].point%></td>
+                        <td><a href="/person/update/<%= lists[i].loginid %>">수정</a></td>
+                        <td><a href="/person/delete/<%= lists[i].loginid %>" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>삭제</a></td>
+                    </tr>
+                </table>
+        <% i += 1 }} %>
+<% } %>

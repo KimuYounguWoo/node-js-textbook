@@ -31,6 +31,7 @@ var bodyParaser = require('body-parser');
 var rootRouter = require('./router/rootRouter');
 var authRouter = require('./router/authRouter');
 var codeRouter = require('./router/codeRouter');
+var personRouter = require('./router/personRouter');
 var merchandiseRouter = require('./router/merchandiseRouter')
 // var personRouter = require('./router/personRouter');
 
@@ -50,6 +51,7 @@ app.use('/', rootRouter);
 app.use('/auth', authRouter);
 app.use('/merchandise',merchandiseRouter);
 app.use('/code', codeRouter);
+app.use('/person',personRouter);
 // app.use('/person',personRouter);
 // ====================== STATIC =====================
 app.use(express.static('public'));
