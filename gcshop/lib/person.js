@@ -1,16 +1,10 @@
 // 201935231 컴퓨터공학과 김용우
-
-const db = require('./db');
-// db module
-
-var s = require('sanitize-html');
-// sanitize-html module
-
 function checkManager(req) {
     if (req.session.class === '00') return 'MANAGER';
+    else if (req.session.class === '01') return 'ADMIN';
     else if (req.session.class === '02') return 'USER';
     else return 'NO';
-}
+} // Class Check Function
 
 function errorMessage(res, msg, href) {
     res.write(`
@@ -19,6 +13,13 @@ function errorMessage(res, msg, href) {
     location.href = "${href}";
     </script>`);
 }
+
+
+const db = require('./db');
+// db module
+
+var s = require('sanitize-html');
+// sanitize-html module
 
 /*
 1. Context
@@ -37,6 +38,7 @@ module.exports = {
     view : (req, res) => {
         console.log(`${req.session.class} ${req.session.name} ${checkManager(req)}`)
         act = req.params.vu;
+        db.query('select * from boardtype', (errs, types) => {
         db.query('select * from person', (err, it) => {
             var context = {
                 menu: 'menuForManager.ejs',
@@ -44,14 +46,16 @@ module.exports = {
                 body: `person.ejs`,
                 logined: checkManager(req),
                 lists: it,
-                act: act
+                act: act,
+                boardtypes: types
             }
             req.app.render('home', context, (err, html) => {
             res.end(html);
         })
-        })
+        })})
     },
     create : (req, res) => {
+        db.query('select * from boardtype', (errs, types) => {
             var context = {
                 menu: 'menuForManager.ejs',
                 who: req.session.name,
@@ -59,10 +63,11 @@ module.exports = {
                 logined: checkManager(req),
                 act: 'c',
                 info: [],
+                boardtypes: types
             }
             req.app.render('home', context, (err, html) => {
             res.end(html);
-        })
+        })})
     },
     create_process : (req, res) => {
         var post = req.body;
@@ -93,7 +98,7 @@ module.exports = {
 
     update : (req, res) => {
         id = req.params.id;
-
+        db.query('select * from boardtype', (errs, types) => {
         db.query(`select * from person where loginid = ?`,
         [id],
         (err, li) => {
@@ -103,12 +108,13 @@ module.exports = {
                 body: `personCU.ejs`,
                 logined: checkManager(req),
                 act: 'u',
-                info: li
+                info: li,
+                boardtypes: types
             }
             req.app.render('home', context, (err, html) => {
             res.end(html);
         })
-        })
+        })})
     },
     update_process : (req, res, file) => {
         var post = req.body;

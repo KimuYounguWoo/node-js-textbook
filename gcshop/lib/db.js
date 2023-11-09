@@ -10,8 +10,9 @@ var db = mysql.createConnection({
     // username
     password: 'root',
     // password
-    database: 'webdb2023'
+    database: 'webdb2023',
     // name of the database
+    multipleStatements: true
 });
 
 db.connect();

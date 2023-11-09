@@ -6,8 +6,21 @@ const db = require('./db');
 var s = require('sanitize-html');
 // sanitize-html module
 
+/*
+1. Context
+context = {
+        menu: Menu EJS
+        who: User Name (손님, 회원 이름)
+        body: BODY EJS
+        logined: User Class
+        act: View, Update를 구분하기 위해 사용 / 'c': Create, 'u': Update
+        info: Update를 위한 정보 / Create를 위한 빈 정보
+        lists: View를 위한 정보
+}
+*/
 function checkManager(req) {
     if (req.session.class === '00') return 'MANAGER';
+    else if (req.session.class === '01') return 'ADMIN';
     else if (req.session.class === '02') return 'USER';
     else return 'NO';
 } // Class Check Function
@@ -21,23 +34,11 @@ function errorMessage(res, msg, href) {
 }
 
 
-/*
-1. Context
-context = {
-        menu: Menu EJS
-        who: User Name (손님, 회원 이름)
-        body: BODY EJS
-        logined: User Class
-        act: View, Update를 구분하기 위해 사용 / 'c': Create, 'u': Update
-        info: Update를 위한 정보 / Create를 위한 빈 정보
-        lists: View를 위한 정보
-}
-*/
-
 module.exports = {
     view : (req, res) => {
         act = req.params.vu;
-
+        
+        db.query('select * from boardtype', (errs, types) => {
         db.query('select * from code_tbl', (err, code) => {
             var context = {
                 menu: 'menuForManager.ejs',
@@ -45,14 +46,17 @@ module.exports = {
                 body: `code.ejs`,
                 logined: checkManager(req),
                 lists: code,
-                act: act
+                act: act,
+                boardtypes: types
             }
             req.app.render('home', context, (err, html) => {
                 res.end(html);
             })
         })
+    });
     },
     create : (req, res) => {
+        db.query('select * from boardtype', (errs, types) => {
             var context = {
                 menu: 'menuForManager.ejs',
                 who: req.session.name,
@@ -60,10 +64,11 @@ module.exports = {
                 logined: checkManager(req),
                 act: 'c',
                 info: [],
+                boardtypes: types
             }
             req.app.render('home', context, (err, html) => {
                 res.end(html);
-        })
+        })})
     },
     create_process : (req, res) => {
         var post = req.body;
@@ -95,7 +100,7 @@ module.exports = {
     update : (req, res) => {
         main = req.params.main;
         sub = req.params.sub;
-
+        db.query('select * from boardtype', (errs, types) => {
         db.query(`select * from code_tbl where main_id = ? and sub_id = ?`,
         [main, sub],
         (err, code) => {
@@ -105,12 +110,13 @@ module.exports = {
                 body: `codeCU.ejs`,
                 logined: checkManager(req),
                 act: 'u',
-                info: code
+                info: code,
+                boardtypes: types
             }
             req.app.render('home', context, (err, html) => {
                 res.end(html);
             })
-        })
+        })})
     },
 
     update_process : (req, res) => {

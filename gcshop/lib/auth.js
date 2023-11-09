@@ -14,18 +14,21 @@ context = {
             logined: User Class
 }
 */
-
 module.exports = {
     login : (req, res) => { // LOGIN
-        var context = {
-            menu: 'menuForCustomer.ejs',
-            who: '손님',
-            body: 'login.ejs',
-            logined: 'NO'
-        };
-        req.app.render('home', context, (err, html) => {
-            res.end(html);
-        })
+        db.query('select * from boardtype', (errs, types) => {
+            var context = {
+                menu: 'menuForCustomer.ejs',
+                who: '손님',
+                body: 'login.ejs',
+                logined: 'NO',
+                boardtypes: types
+            };
+            req.app.render('home', context, (err, html) => {
+                res.end(html);
+            })
+        });
+
     },
 
     login_process : (req, res) => {
@@ -64,15 +67,18 @@ module.exports = {
     },
 
     join : (req, res) => {
-        var context = {
+        db.query('select * from boardtype', (errs, types) => {
+            var context = {
             menu: 'menuForCustomer.ejs',
             who: '손님',
             body: 'join.ejs',
-            logined: 'NO'
+            logined: 'NO',
+            boardtypes: types
         };
         req.app.render('home', context, (err, html) => {
             res.end(html);
-        })
+        })})
+
     },
 
     join_process : (req, res) => {

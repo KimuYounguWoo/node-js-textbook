@@ -1,16 +1,15 @@
 // 201935231 컴퓨터공학과 김용우
-
 const db = require('./db');
 // db module
 
 var s = require('sanitize-html');
 // sanitize-html module
-
 function checkManager(req) {
     if (req.session.class === '00') return 'MANAGER';
+    else if (req.session.class === '01') return 'ADMIN';
     else if (req.session.class === '02') return 'USER';
     else return 'NO';
-}
+} // Class Check Function
 
 /*
 1. Context
@@ -28,6 +27,7 @@ context = {
 module.exports = {
     view : (req, res) => {
         act = req.params.vu;
+        db.query('select * from boardtype', (errs, types) => {
         db.query('select * from merchandise', (err, it) => {
             var context = {
                 menu: 'menuForManager.ejs',
@@ -35,14 +35,17 @@ module.exports = {
                 body: `merchandise.ejs`,
                 logined: checkManager(req),
                 lists: it,
-                act: act
+                act: act,
+                boardtypes: types
             }
             req.app.render('home', context, (err, html) => {
             res.end(html);
         })
         })
+    })
     },
     create : (req, res) => {
+        db.query('select * from boardtype', (errs, types) => {
         db.query("select sub_name, sub_id from code_tbl", (error, cate) => {
             var context = {
                 menu: 'menuForManager.ejs',
@@ -52,12 +55,13 @@ module.exports = {
                 act: 'c',
                 info: [],
                 catego: cate,
+                boardtypes: types
             }
             req.app.render('home', context, (err, html) => {
             res.end(html);
         })
         })
-
+    })
     },
     create_process : (req, res, file) => {
         var post = req.body;
@@ -81,6 +85,7 @@ module.exports = {
     },
     update : (req, res) => {
         id = req.params.merId;
+        db.query('select * from boardtype', (errs, types) => {
         db.query("select sub_name, sub_id from code_tbl", (error, cate) => {
             db.query(`select * from merchandise where mer_id = ${id}`, (err, li) => {
                 var context = {
@@ -90,12 +95,14 @@ module.exports = {
                     logined: checkManager(req),
                     act: 'u',
                     info: li,
-                    catego: cate
+                    catego: cate,
+                    boardtypes: types
                 }
                 req.app.render('home', context, (err, html) => {
                     res.end(html);
                 })
             })
+        })
         })
     },
     update_process : (req, res, file) => {

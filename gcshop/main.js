@@ -33,6 +33,7 @@ var authRouter = require('./router/authRouter');
 var codeRouter = require('./router/codeRouter');
 var personRouter = require('./router/personRouter');
 var merchandiseRouter = require('./router/merchandiseRouter')
+var boardRouter = require('./router/boardRouter');
 // var personRouter = require('./router/personRouter');
 
 // ====================== SESSION, STORE ======================
@@ -51,7 +52,9 @@ app.use('/', rootRouter);
 app.use('/auth', authRouter);
 app.use('/merchandise',merchandiseRouter);
 app.use('/code', codeRouter);
-app.use('/person',personRouter);
+app.use('/person', personRouter);
+app.use('/board', boardRouter);
+
 // app.use('/person',personRouter);
 // ====================== STATIC =====================
 app.use(express.static('public'));
