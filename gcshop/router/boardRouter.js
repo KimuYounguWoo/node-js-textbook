@@ -25,14 +25,13 @@ router.post('/type/update_process', (req, res) => {
     board.typeUpdate_process(req, res);
 });
 
-router.post('/type/delete/:typeId', (req, res) => {
-    board.typeDelete_proces(req, res);
+router.get('/type/delete/:typeId', (req, res) => {
+    board.typeDelete_process(req, res);
 });
 
 router.get('/view/:typeId/:pNum', (req, res) => {
     board.view(req, res);
 });
-
 router.get('/create/:typeId', (req, res) => {
     board.create(req, res);
 });
@@ -45,6 +44,9 @@ router.get('/update/:boardId/:typeId/:pNum', (req, res) => {
 router.post('/update_process', (req, res) => {
     board.update_process(req, res);
 });
-router.post('/view:typeId/:pNum', (req, res) => {
-    board.delete(req, res);
+router.get('/detail/:boardId/:typeId/:pNum', (req, res) => {
+    board.detail(req, res);
+});
+router.get('/delete/:boardId/:typeId/:pNum', (req, res) => {
+    board.delete_process(req, res);
 });

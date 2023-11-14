@@ -1,12 +1,5 @@
-<% if (logined !== 'ADMIN') { %>
-    <script>
-        alert('권한이 부족합니다.');
-        location.href = '/';
-    </script>
-<% } %>
-<!-- 권한 및 로그인 확인 -->
+<h3>글 보기</h3>
 
-<h3>사용자 수정</h3>
 <% if (lists.length === 0) { %>
     <table class="table table-bordered ">
         <tr><td>내용 없음</td></tr>
@@ -19,21 +12,25 @@
                 <td>작성자</td>
                 <td>제목</td>
                 <td>날짜</td>
-                <td>날짜</td>
             </thead>
             <tr>
                 <td><%= lists[i].name %></td>
-                <td><%= lists[i].title %></td>
+                <td><a href="/board/detail/<%=lists[i].board_id%>/<%= type %>/<%=pNum%>"><%= lists[i].title %></a></td>
                 <td><%= lists[i].date %></td>
-                <td><a href="">수정</a></td>
-                <td><a href="">삭제</a></td>
+                <% if (logined != 'USER') { %>
+                    <td><a href="/board/update/<%=lists[i].board_id%>/<%= type %>/<%=pNum%>">수정</a></td>
+                    <td><a href="/board/delete/<%=lists[i].board_id%>/<%= type %>/<%=pNum%>" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>삭제</a></td>
+                <% } %>
             </tr>
         </table>
-    <% i += 1 }} %>
-    <% var j = 1;
-    while (j < totalPages) { 
-        if(j == pNum){ %>
-            <span style="font-weight : bold;"><%=j%></span> &nbsp;&nbsp;
-            <% } else { %>
-                <span><a href="/board/view/<%=boardtypes[0].type_id%>/<%=j%>"><%=j%></a></span> &nbsp;&nbsp;
-                <% } j++ } %>
+    <% i += 1 } }%>
+<% var j = 1;
+while (j < totalPages) {
+    if(j == pNum){ %>
+        <span style="font-weight : bold;"><%=j%></span> &nbsp;&nbsp;
+    <% } else { %>
+        <span><a href="/board/view/<%=boardtypes[0].type_id%>/<%=j%>"><%=j%></a></span> &nbsp;&nbsp;
+<% } j++ } %>
+<% if (current[0].write_YN == 'Y' || logined == 'ADMIN' || logined == 'MANAGER') { %>
+    <button type="button" class="btn btn-light btn-sm"><a href="/board/create/<%= type %>">글쓰기</a></button>
+<% } %>

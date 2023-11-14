@@ -1,26 +1,11 @@
 // 201935231 컴퓨터공학과 김용우
-function checkManager(req) {
-    if (req.session.class === '00') return 'MANAGER';
-    else if (req.session.class === '01') return 'ADMIN';
-    else if (req.session.class === '02') return 'USER';
-    else return 'NO';
-} // Class Check Function
-
-function errorMessage(res, msg, href) {
-    res.write(`
-    <script type="text/javascript">
-    alert("ERROR :: ${msg}");
-    location.href = "${href}";
-    </script>`);
-}
-
-
 const db = require('./db');
 // db module
 
 var s = require('sanitize-html');
 // sanitize-html module
 
+var func = require('./function');
 /*
 1. Context
 context = {
@@ -36,34 +21,39 @@ context = {
 
 module.exports = {
     view : (req, res) => {
-        console.log(`${req.session.class} ${req.session.name} ${checkManager(req)}`)
         act = req.params.vu;
-        db.query('select * from boardtype', (errs, types) => {
-        db.query('select * from person', (err, it) => {
+        sql1 = `select * from boardtype;`
+        sql2 = `select * from person;`
+        sql3 = `select * from code_tbl;`
+        db.query(sql1 + sql2 + sql3, (errs, results) => {
             var context = {
-                menu: 'menuForManager.ejs',
+                menu: func.checkMenu(req),
                 who: req.session.name,
                 body: `person.ejs`,
-                logined: checkManager(req),
-                lists: it,
+                logined: func.checkManager(req),
+                lists: results[1],
                 act: act,
-                boardtypes: types
+                boardtypes: results[0],
+                code: results[2]
             }
             req.app.render('home', context, (err, html) => {
-            res.end(html);
+                res.end(html);
+            })
         })
-        })})
     },
     create : (req, res) => {
-        db.query('select * from boardtype', (errs, types) => {
+        sql1 = `select * from boardtype;`
+        sql2 = `select * from code_tbl;`
+        db.query(sql1+sql2, (errs, results) => {
             var context = {
-                menu: 'menuForManager.ejs',
+                menu: func.checkMenu(req),
                 who: req.session.name,
                 body: `personCU.ejs`,
-                logined: checkManager(req),
+                logined: func.checkManager(req),
                 act: 'c',
                 info: [],
-                boardtypes: types
+                boardtypes: results[0],
+                code: results[1]
             }
             req.app.render('home', context, (err, html) => {
             res.end(html);
@@ -79,13 +69,13 @@ module.exports = {
         sBirth = s(post.birth);
         sClass = s(post.class);
         sPoint = s(post.point);
-        // db.query('select loginid from person', (error, results) => {
-        //     for (var i = 0; i < results.length; i++) {
-        //         if (results[i].loginid === sId) {
-        //             errorMessage(res, 'duplicate login id', '/person/view/u');
-        //             return;
-        //         }
-        //     } // login id 중복 확인
+        db.query('select loginid from person', (error, results) => {
+            for (var i = 0; i < results.length; i++) {
+                if (results[i].loginid === sId) {
+                    func.errorMessage(res, 'duplicate login id', '/person/view/u');
+                    return;
+                }
+            } // login id 중복 확인
             db.query(`INSERT INTO person (loginid, password, name, address, tel, birth, class, point) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`,
                     [sId, sPwd, sName, sAddr, sTel, sBirth, sClass, sPoint],
                     (error, result) => {
@@ -93,28 +83,29 @@ module.exports = {
                         res.redirect(`/person/view/v`)
                         res.end();
                     });
-        // });
+        });
     },
 
     update : (req, res) => {
         id = req.params.id;
-        db.query('select * from boardtype', (errs, types) => {
-        db.query(`select * from person where loginid = ?`,
-        [id],
-        (err, li) => {
+        sql1 = `select * from boardtype;`
+        sql2 = `select * from person where loginid = '${id}';`
+        sql3 = `select * from code_tbl;`
+        db.query(sql1 + sql2 + sql3, (errs, results) => {
             var context = {
-                menu: 'menuForManager.ejs',
+                menu: func.checkMenu(req),
                 who: req.session.name,
                 body: `personCU.ejs`,
-                logined: checkManager(req),
+                logined: func.checkManager(req),
                 act: 'u',
-                info: li,
-                boardtypes: types
+                info: results[1],
+                boardtypes: results[0],
+                code: results[2]
             }
             req.app.render('home', context, (err, html) => {
-            res.end(html);
+                res.end(html);
+            })
         })
-        })})
     },
     update_process : (req, res, file) => {
         var post = req.body;
@@ -127,13 +118,13 @@ module.exports = {
         sBirth = s(post.birth);
         sClass = s(post.class);
         sPoint = s(post.point);
-        // db.query('select loginid from person', (error, results) => {
-        //     for (var i = 0; i < results.length; i++) {
-        //         if (results[i].loginid === sId && sId !== post.log_id) { // DB에 있는 ID와 같고, 수정하려는 ID와 다를 때
-        //             errorMessage(res, 'duplicate login id', '/person/view/u');
-        //             return;
-        //         }
-        //     } // login id 중복 확인
+        db.query('select loginid from person', (error, results) => {
+            for (var i = 0; i < results.length; i++) {
+                if (results[i].loginid === sId && sId !== post.log_id) { // DB에 있는 ID와 같고, 수정하려는 ID와 다를 때
+                    func.errorMessage(res, 'duplicate login id', '/person/view/u');
+                    return;
+                }
+            } // login id 중복 확인
         db.query(
             'UPDATE person SET loginid=?, password=?, name=?, address=?, tel=?, birth=?, class=?, point=? where loginid=?',
             [sId, sPwd, sName, sAddr, sTel, sBirth, sClass, sPoint, post.log_id],
@@ -141,14 +132,14 @@ module.exports = {
                 res.writeHead(302, {Location: `/person/view/u`});
                 res.end();
             });
-        // });
+        });
     },
     delete_process : (req, res) => {
         id = req.params.id;
         console.log(`${id} ${req.session.loginid}`)
         console.log(req.session)
         if (id === req.session.loginid) {
-            errorMessage(res, 'Current login user', '/person/view/u');
+            func.errorMessage(res, 'Current login user', '/person/view/u');
             return;
         }
         db.query('DELETE FROM person WHERE loginid=?',

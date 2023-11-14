@@ -1,25 +1,77 @@
-<div class="container">	
-    <h2> 생성</h2>
-	<form action="/board/create_process" method="post" >
-        <input type = "hidden" name="type_id" value = "<%= boardtypes[0].type_id %>">
-        <input type = "hidden" name="loginid" value = "<%= userId %>">
-		<div class="mb-3">
-			<label class="form-label" for="id">제목</label> 
-			<input class="form-control" type="text" name="title" style = "width:300px;" />
-		</div>
-        <div class="mb-3">
-			<label class="form-label" for="id">작성자</label> 
-			<input class="form-control" type="text" name="name" value = "<%= who %>" style = "width:300px;" disabled/>
-		</div>
-        <div class="mb-3">
-			<label class="form-label" for="id">내용</label> 
-			<textarea class="form-control" name="content" style = "width:800px;height: 200px;" ></textarea>
-		</div>
-        <div class="mb-3">
-			<label class="form-label" for="id">갱신삭제시 비밀번호</label> 
-			<input class="form-control" type="text" name="password" style = "width:300px;" />
-		</div>
-        <button class="	 btn-outline-primary btn-sm" type="submit">생성</button>
-    
-  </form>
-</div>
+<% if (act == 'u') { %>
+	<div class="container">	
+		<h2>수정</h2>
+		<form action="/board/update_process" method="post" >
+			<input type = "hidden" name="type_id" value = "<%= typeId %>">
+			<input type = "hidden" name="loginid" value = "<%= userId %>">
+			<input type = "hidden" name="board_id" value = "<%= boardId %>">
+			<div class="mb-3">
+				<label class="form-label" for="id">제목</label>
+				<input class="form-control" type="text" name="title" style = "width:300px;" value="<%= info[0].title %>"/>
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">작성자</label>
+				<input class="form-control" type="text" name="name" value = "<%= who %>" style = "width:300px;" disabled/>
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">내용</label>
+				<textarea class="form-control" name="content" style = "width:800px; height:200px;" value="" ><%= info[0].content %></textarea>
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">갱신삭제시 비밀번호</label>
+				<input class="form-control" type="text" name="password" style = "width:300px;" />
+			</div>
+			<button class="	 btn-outline-primary btn-sm" type="submit">수정</button>
+		</form>
+	</div>
+<% } else if (act == 'c') { %>
+	<div class="container">	
+		<h2>생성</h2>
+		<form action="/board/create_process" method="post" >
+			<input type = "hidden" name="type_id" value = "<%= typeId %>">
+			<input type = "hidden" name="loginid" value = "<%= userId %>">
+			<div class="mb-3">
+				<label class="form-label" for="id">제목</label>
+				<input class="form-control" type="text" name="title" style = "width:300px;"/>
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">작성자</label>
+				<input class="form-control" type="text" name="name" value = "<%= who %>" style = "width:300px;" disabled/>
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">내용</label>
+				<textarea class="form-control" name="content" style = "width:800px; height:200px;"></textarea>
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">갱신삭제시 비밀번호</label>
+				<input class="form-control" type="text" name="password" style = "width:300px;" />
+			</div>
+			<button class="	 btn-outline-primary btn-sm" type="submit">생성</button>
+		</form>
+	</div>
+<% } else { %>
+	<div class="container">	
+		<h2>조회</h2>
+			<div class="mb-3">
+				<label class="form-label" for="id">제목</label>
+				<input class="form-control" type="text" name="title" style = "width:300px;" value="<%= info[0].title %>" disabled />
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">작성자</label>
+				<input class="form-control" type="text" name="name" value="<%= info[0].name %>" style = "width:300px;" disabled/>
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">날짜</label>
+				<input class="form-control" type="text" name="password" value="<%= info[0].date %>" style = "width:300px;" disabled />
+			</div>
+			<div class="mb-3">
+				<label class="form-label" for="id">내용</label>
+				<textarea class="form-control" name="content" style = "width:800px; height:200px;" disabled><%= info[0].content %></textarea>
+			</div>
+			<button class="btn btn-primary btn-light" type="submit"><a href="/board/view/<%= info[0].type_id %>/<%= pNum %>">목록</a></button>
+			<% if (auth == info[0].loginid) { %>
+				<button class="btn btn-light btn-sm" type="submit"><a href="/board/update/<%= info[0].board_id %>/<%= info[0].type_id %>/<%= pNum %>">수정</a></button>
+				<button class="btn btn-light btn-sm" type="submit"><a href="/board/delete/<%= info[0].board_id %>/<%= info[0].type_id %>/<%= pNum %>" onclick='if(confirm("정말로 삭제하시겠습니까?")==false){ return false }'>삭제</a></button>
+			<% } %>
+	</div>
+<% } %>

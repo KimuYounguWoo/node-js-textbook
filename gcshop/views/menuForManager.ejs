@@ -28,13 +28,10 @@
             카테고리
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">의류</a></li>
-            <li><a class="dropdown-item" href="#">식품</a></li>
-            <li><a class="dropdown-item" href="#">가전</a></li>
-            <li><a class="dropdown-item" href="#">도서</a></li>
-            <li><a class="dropdown-item" href="#">스포츠</a></li>
-            <li><a class="dropdown-item" href="#">자동차</a></li>
-            <li><a class="dropdown-item" href="#">생활용품</a></li>
+            <% var i =0
+            while (i < code.length) { %>
+              <li><a class="dropdown-item" href="/shop/<%= code[i].sub_id %>"><%= code[i].main_name %></a></li>
+            <% i += 1 } %>
           </ul>
         </li>
 
@@ -46,7 +43,7 @@
             <!-- 게시판 1, 게시판 2, 게시판 3 ...-->
             <% var i = 0
             while (i < boardtypes.length) { %>
-              <li><a class="dropdown-item" href="/board/view/<%= i+1%>/1"><%= boardtypes[i].title %></a></li>
+              <li><a class="dropdown-item" href="/board/view/<%= boardtypes[i].type_id %>/1"><%= boardtypes[i].title %></a></li>
             <% i += 1 } %>
             <!-- 게시판 1, 게시판 2, 게시판 3 ...-->
             <% if ( logined === 'ADMIN') { %>
@@ -67,8 +64,8 @@
             <li><a class="dropdown-item" href="#">장바구니</a></li>
             <li><a class="dropdown-item" href="#">구매내역</a></li>
             <li><hr class="dropdown-divider"></li>
-            <% if ( logined === 'ADMIN') { %>
-              <li><a class="dropdown-item" href="#">게시판 생성</a></li>
+            <% if ( logined !== 'USER') { %>
+              <li><a class="dropdown-item" href="/board/type/create">게시판 생성</a></li>
             <% } %>
           </ul>
         </li>
@@ -83,8 +80,8 @@
             <li><a class="dropdown-item" href="#">장바구니</a></li>
             <li><a class="dropdown-item" href="#">구매내역</a></li>
             <li><hr class="dropdown-divider"></li>
-            <% if ( logined === 'ADMIN') { %>
-              <li><a class="dropdown-item" href="#">게시판 수정</a></li>
+            <% if ( logined !== 'USER') { %>
+              <li><a class="dropdown-item" href="/board/type/view">게시판 수정</a></li>
             <% } %>
           </ul>
         </li>

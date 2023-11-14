@@ -6,6 +6,8 @@ const db = require('./db');
 var s = require('sanitize-html');
 // sanitize-html module
 
+var func = require('./function');
+
 /*
 1. Context
 context = {
@@ -18,57 +20,46 @@ context = {
         lists: View를 위한 정보
 }
 */
-function checkManager(req) {
-    if (req.session.class === '00') return 'MANAGER';
-    else if (req.session.class === '01') return 'ADMIN';
-    else if (req.session.class === '02') return 'USER';
-    else return 'NO';
-} // Class Check Function
-
-function errorMessage(res, msg, href) {
-    res.write(`
-    <script type="text/javascript">
-    alert("ERROR :: ${msg}");
-    location.href = "${href}";
-    </script>`);
-}
-
 
 module.exports = {
     view : (req, res) => {
         act = req.params.vu;
-        
-        db.query('select * from boardtype', (errs, types) => {
-        db.query('select * from code_tbl', (err, code) => {
+        sql1 = `select * from boardtype;`
+        sql2 = `select * from code_tbl;`
+
+        db.query(sql1 + sql2, (errs, results) => {
             var context = {
-                menu: 'menuForManager.ejs',
+                menu: func.checkMenu(req),
                 who: req.session.name,
                 body: `code.ejs`,
-                logined: checkManager(req),
-                lists: code,
-                act: act,
-                boardtypes: types
+                logined: func.checkManager(req),
+                boardtypes: results[0],
+                lists: results[1],
+                code: results[1]
             }
             req.app.render('home', context, (err, html) => {
                 res.end(html);
             })
         })
-    });
     },
     create : (req, res) => {
-        db.query('select * from boardtype', (errs, types) => {
+        sql1 = `select * from boardtype;`
+        sql2 = `select * from code_tbl;`
+        db.query(sql1 + sql2, (errs, results) => {
             var context = {
-                menu: 'menuForManager.ejs',
+                menu: func.checkMenu(req),
                 who: req.session.name,
                 body: `codeCU.ejs`,
-                logined: checkManager(req),
+                logined: func.checkManager(req),
                 act: 'c',
                 info: [],
-                boardtypes: types
+                boardtypes: results[0],
+                code: results[1],
             }
             req.app.render('home', context, (err, html) => {
                 res.end(html);
-        })})
+            })
+        })
     },
     create_process : (req, res) => {
         var post = req.body;
@@ -78,45 +69,43 @@ module.exports = {
         sSname = s(post.sub_name)
         sStart = s(post.start)
         sEnd = s(post.end)
-        // Sanitize-html
-        // db.query('select main_id, sub_id from code_tbl', (err, code) => {
-        //     for (var i = 0; i < code.length; i++) {
-        //         if (code[i].main_id = sMid && code[i].sub_id == sSid) { //
-        //             errorMessage(res, 'duplicate code', '/code/view/u');
-        //             return;
-        //         }
-        //     } // main_id, sudz_id 중복 확인
+        db.query('select main_id, sub_id from code_tbl', (err, code) => {
+            for (var i = 0; i < code.length; i++) {
+                if (code[i].main_id = sMid && code[i].sub_id == sSid) { //
+                    func.errorMessage(res, 'duplicate code', '/code/view/u');
+                    return;
+                }
+            } 
             db.query(`INSERT INTO code_tbl (main_id, main_name, sub_id, sub_name, start, end) VALUES(?, ?, ?, ?, ?, ?)`,
             [sMid, sMname, sSid, sSname, sStart, sEnd],
             (error, result) => {
-                console.log(`New Code Inserted`)
-                console.log(`main_id: ${sMid}, main_name: ${sMname}, sub_id: ${sSid}, sub_name: ${sSname}, start: ${sStart}, end: ${sEnd}`)
                 res.redirect(`/code/view/u`)
                 res.end();
             });
-        // });
+        });
     },
 
     update : (req, res) => {
         main = req.params.main;
         sub = req.params.sub;
-        db.query('select * from boardtype', (errs, types) => {
-        db.query(`select * from code_tbl where main_id = ? and sub_id = ?`,
-        [main, sub],
-        (err, code) => {
+        sql1 = `select * from boardtype;`
+        sql2 = `select * from code_tbl where main_id = ${main} and sub_id = ${sub};`
+        sql3 = `select * from code_tbl;`
+        db.query(sql1 + sql2 + sql3, (errs, results) => {
             var context = {
-                menu: 'menuForManager.ejs',
+                menu: func.checkMenu(req),
                 who: req.session.name,
                 body: `codeCU.ejs`,
-                logined: checkManager(req),
+                logined: func.checkManager(req),
                 act: 'u',
-                info: code,
-                boardtypes: types
+                info: results[1],
+                boardtypes: results[0],
+                code: results[2]
             }
             req.app.render('home', context, (err, html) => {
                 res.end(html);
             })
-        })})
+        })
     },
 
     update_process : (req, res) => {
@@ -127,26 +116,21 @@ module.exports = {
         sSname = s(post.sub_name)
         sStart = s(post.start)
         sEnd = s(post.end)
-
-        // db.query('select main_id, sub_id from code_tbl', (err, code) => {
-        //     for (var i = 0; i < code.length; i++) {
-        //         if (code[i].main_id = sMid && code[i].sub_id == sSid && sMid != post.mid && sSid != post.sid) { // MAIN과 SUB가 모두 같은 경우
-        //             errorMessage(res, 'duplicate code', '/code/view/u');
-        //             return;
-        //         }
-        //     } // main_id, sudz_id 중복 확인
+        db.query('select main_id, sub_id from code_tbl', (err, code) => {
+            for (var i = 0; i < code.length; i++) {
+                if (code[i].main_id = sMid && code[i].sub_id == sSid && sMid != post.mid && sSid != post.sid) { // MAIN과 SUB가 모두 같은 경우
+                    func.errorMessage(res, 'duplicate code', '/code/view/u');
+                    return;
+                }
+            } // main_id, sudz_id 중복 확인
             db.query(
                 'UPDATE code_tbl SET main_id=?, main_name=?, sub_id=?, sub_name=?, start=?, end=? where main_id=? and sub_id=?',
                 [sMid, sMname, sSid, sSname, sStart, sEnd, post.mid, post.sid],
-                // [sMid, sMname, sSid, sSname, sStart, sEnd] -> Input data
-                // [post.mid, post.sid] -> Where data
                 (error, result) => {
-                    console.log(`New Code Updated`)
-                    console.log(`main_id: ${sMid}, main_name: ${sMname}, sub_id: ${sSid}, sub_name: ${sSname}, start: ${sStart}, end: ${sEnd} / Target Code = ${post.mid}, ${post.sid}`)
                     res.writeHead(302, {Location: `/code/view/u`});
                     res.end();
                 });
-            // });
+            });
     },
 
     delete_process : (req, res) => {
@@ -157,7 +141,7 @@ module.exports = {
         [sub],
         (err, mer) => {
             if (mer.length > 0) {
-                errorMessage(res, `cannot delete code [${mer[0].mer_id}] item is exist`, '/code/view/u');
+                func.errorMessage(res, `cannot delete code [${mer[0].mer_id}] item is exist`, '/code/view/u');
                 return;
             }
             db.query('DELETE FROM code_tbl WHERE main_id = ? and sub_id = ?',
@@ -168,6 +152,5 @@ module.exports = {
                     res.end();
             });
         });
-
     },
 }

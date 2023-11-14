@@ -4,13 +4,8 @@ const db = require('./db');
 
 var s = require('sanitize-html');
 // sanitize-html module
-function checkManager(req) {
-    if (req.session.class === '00') return 'MANAGER';
-    else if (req.session.class === '01') return 'ADMIN';
-    else if (req.session.class === '02') return 'USER';
-    else return 'NO';
-} // Class Check Function
 
+var func = require('./function');
 /*
 1. Context
 context = {
@@ -27,41 +22,45 @@ context = {
 module.exports = {
     view : (req, res) => {
         act = req.params.vu;
-        db.query('select * from boardtype', (errs, types) => {
-        db.query('select * from merchandise', (err, it) => {
+        sql1 = `select * from boardtype;`
+        sql2 = `select * from merchandise;`
+        sql3 = `select * from code_tbl;`
+        db.query(sql1 + sql2 + sql3, (errs, results) => {
             var context = {
-                menu: 'menuForManager.ejs',
+                menu: func.checkMenu(req),
                 who: req.session.name,
                 body: `merchandise.ejs`,
-                logined: checkManager(req),
-                lists: it,
+                logined: func.checkManager(req),
+                lists: results[1],
                 act: act,
-                boardtypes: types
+                boardtypes: results[0],
+                code: results[2]
             }
             req.app.render('home', context, (err, html) => {
-            res.end(html);
+                res.end(html);
+            })
         })
-        })
-    })
     },
     create : (req, res) => {
-        db.query('select * from boardtype', (errs, types) => {
-        db.query("select sub_name, sub_id from code_tbl", (error, cate) => {
+        sql1 = `select * from boardtype;`
+        sql2 = `select sub_name, sub_id from code_tbl;`
+        sql3 = `select * from code_tbl;`
+        db.query(sql1 + sql2 + sql3, (errs, results) => {
             var context = {
-                menu: 'menuForManager.ejs',
+                menu: func.checkMenu(req),
                 who: req.session.name,
                 body: `merchandiseCU.ejs`,
-                logined: checkManager(req),
+                logined: func.checkManager(req),
                 act: 'c',
                 info: [],
-                catego: cate,
-                boardtypes: types
+                catego: results[1],
+                boardtypes: results[0],
+                code: results[2]
             }
             req.app.render('home', context, (err, html) => {
-            res.end(html);
+                res.end(html);
+            })
         })
-        })
-    })
     },
     create_process : (req, res, file) => {
         var post = req.body;
@@ -85,24 +84,25 @@ module.exports = {
     },
     update : (req, res) => {
         id = req.params.merId;
-        db.query('select * from boardtype', (errs, types) => {
-        db.query("select sub_name, sub_id from code_tbl", (error, cate) => {
-            db.query(`select * from merchandise where mer_id = ${id}`, (err, li) => {
-                var context = {
-                    menu: 'menuForManager.ejs',
-                    who: req.session.name,
-                    body: `merchandiseCU.ejs`,
-                    logined: checkManager(req),
-                    act: 'u',
-                    info: li,
-                    catego: cate,
-                    boardtypes: types
-                }
-                req.app.render('home', context, (err, html) => {
-                    res.end(html);
-                })
+        sql1 = `select * from boardtype;`
+        sql2 = `select sub_name, sub_id from code_tbl;`
+        sql3 = `select * from merchandise where mer_id = ${id};`
+        sql4 = `select * from code_tbl;`
+        db.query(sql1 + sql2 + sql3, (errs, results) => {
+            var context = {
+                menu: func.checkMenu(req),
+                who: req.session.name,
+                body: `merchandiseCU.ejs`,
+                logined: func.checkManager(req),
+                act: 'u',
+                info: results[2],
+                catego: results[1],
+                boardtypes: results[0],
+                code: results[3]
+            }
+            req.app.render('home', context, (err, html) => {
+                res.end(html);
             })
-        })
         })
     },
     update_process : (req, res, file) => {

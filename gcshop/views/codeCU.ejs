@@ -14,7 +14,7 @@
 <!-- 권한 및 로그인 확인 -->
 
 <% if (act === 'u') { %>
-<div class="container">	
+<div class="container">
     <h2>코드 수정</h2>
 	<form action="/code/update_process" method="post" >
 		<input class="form-control" type="hidden" name="mid" id="mid" value="<%= info[0].main_id%>" />
@@ -22,31 +22,30 @@
 		<!-- Target Data hidden input -->
 		<div class="mb-3">
 			<label class="form-label" for="id">대분류</label> 
-			<input class="form-control" type="text" name="main_id" id="main_id" style = "width:300px;" placeholder="<%= info[0].main_id%>" />
+			<input class="form-control" type="text" name="main_id" id="main_id" style = "width:300px;" value="<%= info[0].main_id%>" />
 		</div>
         <div class="mb-3">
 			<label class="form-label" for="id">대분류명</label> 
-			<input class="form-control" type="text" name="main_name" id="main_name" style = "width:300px;" placeholder="<%= info[0].main_name%>" />
+			<input class="form-control" type="text" name="main_name" id="main_name" style = "width:300px;" value="<%= info[0].main_name%>" />
 		</div>
         <div class="mb-3">
 			<label class="form-label" for="id">소분류</label> 
-			<input class="form-control" type="text" name="sub_id" id="sub_id" style="width:300px;" placeholder="<%= info[0].sub_id%>" />
+			<input class="form-control" type="text" name="sub_id" id="sub_id" style="width:300px;" value="<%= info[0].sub_id%>" />
 		</div>
         <div class="mb-3">
 			<label class="form-label" for="id">소분류명</label> 
-			<input class="form-control" type="text" name="sub_name" id="sub_name" style="width:300px;" placeholder="<%= info[0].sub_name%>"/>
+			<input class="form-control" type="text" name="sub_name" id="sub_name" style="width:300px;" value="<%= info[0].sub_name%>"/>
 		</div>
         <div class="mb-3">
 			<label class="form-label" for="id">시작일</label> 
-			<input class="form-control" type="text" name="start" id="start" style="width:300px;" placeholder="<%= info[0].start%>"/>
+			<input class="form-control" type="text" name="start" id="start" style="width:300px;" value="<%= info[0].start%>"/>
 		</div>
         <div class="mb-3">
 			<label class="form-label" for="id">종료일</label> 
-			<input class="form-control" type="text" name="end" id="end" style="width:300px;" placeholder="<%= info[0].end%>" />
+			<input class="form-control" type="text" name="end" id="end" style="width:300px;" value="<%= info[0].end%>" />
 		</div>
         <button class="btn btn-outline-primary btn-sm" type="submit">수정</button>
   </form>
-  <h3>main_id = <%= info[0].main_id%>, sub_id = <%= info[0].sub_id%></h3>
 </div>
 <% } else { %>
 	<div class="container">	
@@ -54,27 +53,27 @@
 		<form action="/code/create_process" method="post" >
 			<div class="mb-3">
 				<label class="form-label" for="id">대분류</label> 
-				<input class="form-control" type="text" name="main_id" id="main_id" placeholder="0000" style = "width:300px;" />
+				<input class="form-control" type="text" name="main_id" id="main_id" style = "width:300px;"/>
 			</div>
 			<div class="mb-3">
 				<label class="form-label" for="id">대분류명</label> 
-				<input class="form-control" type="text" name="main_name" id="main_name" style = "width:300px;" />
+				<input class="form-control" type="text" name="main_name" id="main_name" style = "width:300px;"/>
 			</div>
 			<div class="mb-3">
 				<label class="form-label" for="id">소분류</label> 
-				<input class="form-control" type="text" name="sub_id" id="sub_id" style="width:300px;"  />
+				<input class="form-control" type="text" name="sub_id" id="sub_id" style="width:300px;"/>
 			</div>
 			<div class="mb-3">
 				<label class="form-label" for="id">소분류명</label> 
-				<input class="form-control" type="text" name="sub_name" id="sub_name"  style="width:300px;" />
+				<input class="form-control" type="text" name="sub_name" id="sub_name" style="width:300px;"/>
 			</div>
 			<div class="mb-3">
 				<label class="form-label" for="id">시작일</label> 
-				<input class="form-control" type="text" name="start" id="start" style="width:300px;" />
+				<input class="form-control" type="text" name="start" id="start" style="width:300px;"/>
 			</div>
 			<div class="mb-3">
 				<label class="form-label" for="id">종료일</label> 
-				<input class="form-control" type="text" name="end" id="end" style="width:300px;" />
+				<input class="form-control" type="text" name="end" id="end" style="width:300px;"/>
 			</div>
 			<button class="btn btn-outline-primary btn-sm" type="submit">생성</button>
 	  </form>

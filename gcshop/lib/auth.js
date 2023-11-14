@@ -5,6 +5,8 @@ const db = require('./db');
 var s = require('sanitize-html');
 // sanitize-html module
 
+var func = require('./function');
+
 /*
 1. Context
 context = {
@@ -14,21 +16,24 @@ context = {
             logined: User Class
 }
 */
+
 module.exports = {
     login : (req, res) => { // LOGIN
-        db.query('select * from boardtype', (errs, types) => {
+        sql1 = `select * from boardtype;`
+        sql2 = `select * from code_tbl;`
+        db.query(sql1+sql2, (errs, results) => {
             var context = {
-                menu: 'menuForCustomer.ejs',
+                menu: func.checkMenu(req),
                 who: '손님',
                 body: 'login.ejs',
                 logined: 'NO',
-                boardtypes: types
+                boardtypes: results[0],
+                code: results[1]
             };
             req.app.render('home', context, (err, html) => {
                 res.end(html);
             })
         });
-
     },
 
     login_process : (req, res) => {
@@ -54,31 +59,34 @@ module.exports = {
                     req.session.is_logined = false;
                     req.session.name = '손님';
                     req.session.class = '99';
-                    res.redirect('/');
+                    func.errorMessage(res, 'login failed', '/auth/login');
+                    return;
                 }
             })
-            console.log(`sessionsss id: ${req.session.loginid}`)
     },
 
     logout_process: (req, res) => {
         req.session.destroy((err) => {
-                res.redirect('/');
-            })
+            res.redirect('/');
+        })
     },
 
     join : (req, res) => {
-        db.query('select * from boardtype', (errs, types) => {
+        sql1 = `select * from boardtype;`
+        sql2 = `select * from code_tbl;`
+        db.query(sql1+sql2, (errs, results) => {
             var context = {
-            menu: 'menuForCustomer.ejs',
+            menu: func.checkMenu(req),
             who: '손님',
             body: 'join.ejs',
             logined: 'NO',
-            boardtypes: types
+            boardtypes: results[0],
+            code: results[1]
         };
         req.app.render('home', context, (err, html) => {
             res.end(html);
-        })})
-
+        })
+    })
     },
 
     join_process : (req, res) => {
@@ -101,14 +109,10 @@ module.exports = {
                     return;
                 }
             } // login id 중복 확인
-            db.query(
-                'insert into person values (?, ?, ?, ?, ?, ?, "02", 0)',
-                [sId, sPwd, sName, sAddr, sTel, sBirth],
-                (error, results) => {
-                    if (error) throw error;
-                    res.redirect('/auth/login');
-                })
+            console.log(sId, sPwd, sName, sTel, sBirth, sAddr);
+            db.query('insert into person values (?, ?, ?, ?, ?, ?, "02", 0)', [sId, sPwd, sName, sTel, sBirth, sAddr], (err, li) => {
+                res.redirect('/auth/login');
+            })
         });
-
     },
 }
